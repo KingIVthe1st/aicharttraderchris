@@ -39,7 +39,7 @@ export default function LandingPage() {
               </span>
             </div>
             <p className="text-white/60 text-sm">
-              © 2025 AI Chart Trader. Institutional Clarity. Retail Agility.
+              &copy; 2025 AI Chart Trader. Institutional Clarity. Retail Agility.
             </p>
           </div>
         </div>
