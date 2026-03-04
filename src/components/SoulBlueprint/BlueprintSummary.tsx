@@ -40,7 +40,7 @@ export default function BlueprintSummary({
           Life Path Number
         </p>
         <p className="text-6xl font-bold text-white mt-2">
-          {blueprint.lifePathNumber}
+          {blueprint.lifePath}
         </p>
       </div>
 
@@ -79,10 +79,10 @@ export default function BlueprintSummary({
             Chinese Zodiac
           </p>
           <p className="text-lg font-semibold text-white mt-1">
-            {blueprint.chineseZodiacAnimal}
+            {blueprint.chineseAnimal}
           </p>
           <p className="text-sm text-gray-400">
-            {blueprint.chineseZodiacElement}
+            {blueprint.chineseElement}
           </p>
         </div>
         <div className="rounded-xl border border-gray-800 bg-gray-900/50 p-4 text-center">
