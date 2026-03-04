@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cosmicApi } from '@/lib/api/cosmic';
 import type { CosmicIntelligence, NEOFactor, HoraGridHour } from '@/types/cosmic';
 import { getNEOColorClass, getNEOBgClass, getNodeColorClass } from '@/types/cosmic';
@@ -326,16 +327,28 @@ export default function CosmicTimingDashboard() {
   const [data, setData] = useState<CosmicIntelligence | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [needsBlueprint, setNeedsBlueprint] = useState(false);
+  const navigate = useNavigate();
 
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      setNeedsBlueprint(false);
       const result = await cosmicApi.getDaily();
       setData(result);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to load cosmic data';
-      setError(message);
+      // Extract backend error message from Axios response body
+      const axiosErr = err as { response?: { status?: number; data?: { error?: string } }; message?: string };
+      const backendMsg = axiosErr?.response?.data?.error;
+      const status = axiosErr?.response?.status;
+
+      if (status === 400 && backendMsg?.toLowerCase().includes('soul blueprint')) {
+        setNeedsBlueprint(true);
+      } else {
+        const message = backendMsg || (err instanceof Error ? err.message : 'Failed to load cosmic data');
+        setError(message);
+      }
     } finally {
       setLoading(false);
     }
@@ -358,6 +371,24 @@ export default function CosmicTimingDashboard() {
           {Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)}
         </div>
       </div>
+    );
+  }
+
+  if (needsBlueprint) {
+    return (
+      <Card className="text-center py-16 px-8 max-w-lg mx-auto">
+        <div className="text-5xl mb-4">🌌</div>
+        <h3 className="text-xl font-bold text-white mb-2">Soul Blueprint Required</h3>
+        <p className="text-gray-400 mb-6 leading-relaxed">
+          The Cosmic Timing Dashboard is personalized to your birth data. Create your Soul Blueprint first to unlock your NEO Score, planetary hours, and aligned trading windows.
+        </p>
+        <button
+          onClick={() => navigate('/soul-blueprint')}
+          className="px-6 py-3 rounded-lg bg-purple-600 hover:bg-purple-500 text-white font-semibold transition-colors"
+        >
+          Create My Soul Blueprint →
+        </button>
+      </Card>
     );
   }
 
