@@ -3,10 +3,12 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import SubscriptionModal from "@/components/SubscriptionModal";
 import { IntelligenceDashboard } from "@/components/IntelligenceDashboard";
+import CosmicTimingDashboard from "@/components/CosmicDashboard/CosmicTimingDashboard";
 
 export default function Dashboard() {
   const { session, syncSubscription, isActiveSubscriber } = useAuth();
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'market' | 'cosmic'>('market');
   const [searchParams] = useSearchParams();
   const [hasSynced, setHasSynced] = useState(false);
 
@@ -113,8 +115,36 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Intelligence Dashboard */}
-          <IntelligenceDashboard />
+          {/* Tab Switcher */}
+          <div className="flex gap-2 mb-6">
+            <button
+              onClick={() => setActiveTab('market')}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                activeTab === 'market'
+                  ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/25'
+                  : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              Market Intelligence
+            </button>
+            <button
+              onClick={() => setActiveTab('cosmic')}
+              className={`px-6 py-2.5 rounded-lg font-medium transition-all ${
+                activeTab === 'cosmic'
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-500 text-white shadow-lg shadow-purple-500/25'
+                  : 'bg-gray-800/50 text-gray-400 hover:text-white hover:bg-gray-800'
+              }`}
+            >
+              Cosmic Timing
+            </button>
+          </div>
+
+          {/* Dashboard Content */}
+          {activeTab === 'market' ? (
+            <IntelligenceDashboard />
+          ) : (
+            <CosmicTimingDashboard />
+          )}
 
           {/* Quick Links */}
           <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
