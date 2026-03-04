@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authApi } from "@/lib/api/auth";
+import apiClient from "@/lib/api-client";
 import type { Session } from "@/types/api";
 
 interface AuthContextType {
@@ -11,6 +12,7 @@ interface AuthContextType {
   signOut: () => Promise<void>;
   refreshSession: () => Promise<void>;
   syncSubscription: () => Promise<{ synced: boolean; status: string }>;
+  hasSoulBlueprint: boolean | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,12 +20,14 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasSoulBlueprint, setHasSoulBlueprint] = useState<boolean | null>(null);
 
   const refreshSession = async () => {
     // Only fetch session if we have a token
     const token = localStorage.getItem("auth_token");
     if (!token) {
       setSession(null);
+      setHasSoulBlueprint(null);
       setIsLoading(false);
       return;
     }
@@ -31,6 +35,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const newSession = await authApi.getSession();
       setSession(newSession);
+
+      // Check if user has a soul blueprint
+      try {
+        await apiClient.get("/soul-blueprint");
+        setHasSoulBlueprint(true);
+      } catch {
+        setHasSoulBlueprint(false);
+      }
 
       // Check for pending callback URL after successful authentication
       const callbackUrl = sessionStorage.getItem("authCallbackUrl");
@@ -44,6 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       console.error("Failed to fetch session:", error);
       setSession(null);
+      setHasSoulBlueprint(null);
       localStorage.removeItem("auth_token"); // Clear invalid token
     } finally {
       setIsLoading(false);
@@ -163,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     signOut: handleSignOut,
     refreshSession,
     syncSubscription,
+    hasSoulBlueprint,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -12,6 +12,7 @@ const History = lazy(() => import('./pages/History'));
 const Pricing = lazy(() => import('./pages/Pricing'));
 const Billing = lazy(() => import('./pages/Billing'));
 const Admin = lazy(() => import('./pages/Admin'));
+const SoulBlueprint = lazy(() => import('./pages/SoulBlueprint'));
 
 // Loading fallback component
 function PageLoader() {
@@ -57,6 +58,14 @@ function App() {
           element={
             <ProtectedRoute>
               <History />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/soul-blueprint"
+          element={
+            <ProtectedRoute>
+              <SoulBlueprint />
             </ProtectedRoute>
           }
         />
