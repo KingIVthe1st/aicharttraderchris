@@ -59,6 +59,7 @@ export interface AnalyzeRequest {
   useConversation?: boolean;
   conversationHistory?: ConversationMessage[]; // Full conversation context
   mode?: "trader" | "mentor"; // Analysis mode: trader (concise) or mentor (educational)
+  includeCosmic?: boolean; // Include cosmic overlay context in analysis
 }
 
 // SSE Event Types

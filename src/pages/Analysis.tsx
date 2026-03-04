@@ -32,6 +32,12 @@ export default function Analysis() {
     return (saved as 'trader' | 'mentor') || 'mentor'; // Default to mentor mode
   });
 
+  // Cosmic overlay toggle
+  const [cosmicOverlay, setCosmicOverlay] = useState(() => {
+    const saved = localStorage.getItem('tradvio-cosmic-overlay');
+    return saved === 'true';
+  });
+
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -103,6 +109,10 @@ export default function Analysis() {
   useEffect(() => {
     localStorage.setItem('tradvio-analysis-mode', analysisMode);
   }, [analysisMode]);
+
+  useEffect(() => {
+    localStorage.setItem('tradvio-cosmic-overlay', cosmicOverlay.toString());
+  }, [cosmicOverlay]);
 
   const toggleAnalysisMode = () => {
     setAnalysisMode(prev => {
@@ -312,6 +322,7 @@ export default function Analysis() {
         useConversation: true, // Enable conversational mode
         conversationHistory, // Send full conversation for context
         mode: analysisMode, // Pass analysis mode to backend
+        includeCosmic: cosmicOverlay, // Include cosmic overlay context
       };
       console.log('[MODE DEBUG] analysisRequest.mode:', analysisRequest.mode);
 
@@ -869,6 +880,27 @@ export default function Analysis() {
                 )}
               </div>
             </div>
+
+            {/* Cosmic Overlay Toggle */}
+            <button
+              onClick={() => setCosmicOverlay(!cosmicOverlay)}
+              className={`flex-shrink-0 flex items-center gap-2 px-4 py-3 rounded-xl border transition-all duration-300 backdrop-blur-sm hover:scale-105 ${
+                cosmicOverlay
+                  ? 'bg-purple-600/20 border-purple-500/50 text-purple-300'
+                  : darkMode
+                    ? 'bg-gray-800/50 border-gray-700 text-gray-500'
+                    : 'bg-gray-100 border-gray-300 text-gray-500'
+              }`}
+              title="Cosmic Overlay"
+            >
+              <span className="text-lg">✨</span>
+              <span className="text-sm font-medium">Cosmic</span>
+              <span className={`text-xs px-1.5 py-0.5 rounded ${
+                cosmicOverlay ? 'bg-purple-500/30 text-purple-200' : darkMode ? 'bg-gray-700 text-gray-400' : 'bg-gray-200 text-gray-500'
+              }`}>
+                {cosmicOverlay ? 'ON' : 'OFF'}
+              </span>
+            </button>
 
             <div
               className={`flex-1 relative transition-all duration-200 ${isDragging ? 'ring-2 ring-blue-500 ring-opacity-50 rounded-2xl' : ''}`}
