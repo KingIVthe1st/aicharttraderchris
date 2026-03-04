@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { TrendingUp, Zap } from "lucide-react";
+import { Star, Moon, TrendingUp } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Chart from "../Chart";
 import WaitlistModal from "../WaitlistModal";
@@ -47,23 +47,35 @@ const Hero = () => {
         } as React.CSSProperties
       }
     >
-      {/* CINEMATIC HERO BACKGROUND with Parallax */}
+      {/* COSMIC HERO BACKGROUND with Parallax */}
       <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
         <img
-          src="/images/ai-generated/hero-cinematic-bg.png"
+          src="/images/ai-generated/cosmic-hero-bg.png"
           alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-70"
         />
-        {/* Gradient overlays for depth */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#050511] via-[#050511]/60 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#050511]/80 via-transparent to-[#050511]/40" />
+        {/* Gradient overlays for depth — cosmic palette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-cosmic-950 via-cosmic-950/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-cosmic-950/80 via-transparent to-cosmic-950/40" />
       </motion.div>
 
-      {/* Spotlight cursor effect overlay */}
+      {/* Star field layer */}
+      <div className="star-field" />
+      {/* Constellation lines layer */}
+      <div className="constellation-lines" />
+
+      {/* Orbit ring decorations */}
+      <div className="orbit-ring w-[600px] h-[600px] top-[-100px] right-[-200px] opacity-30" />
+      <div className="orbit-ring w-[400px] h-[400px] bottom-[-50px] left-[-100px] opacity-20" style={{ animationDuration: '60s' }} />
+
+      {/* Comet streak */}
+      <div className="comet-streak top-[20%] left-[10%]" />
+
+      {/* Spotlight cursor effect overlay — aurora tint */}
       <div
         className="absolute inset-0 pointer-events-none opacity-30 transition-opacity duration-300"
         style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(30, 174, 219, 0.15), transparent 40%)`,
+          background: `radial-gradient(600px circle at ${mousePosition.x}% ${mousePosition.y}%, rgba(46, 197, 255, 0.12), transparent 40%)`,
         }}
       />
 
@@ -153,7 +165,7 @@ const Hero = () => {
                 <span className="block">
                   <SplitText
                     text="AI + Cosmic"
-                    wordClassName="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent"
+                    wordClassName="bg-gradient-to-r from-aurora-400 via-nebula-400 to-solar-400 bg-clip-text text-transparent"
                     staggerDelay={0.04}
                     startDelay={0.3}
                   />
@@ -161,7 +173,7 @@ const Hero = () => {
                 <span className="block">
                   <SplitText
                     text="Trading Intelligence"
-                    wordClassName="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent"
+                    wordClassName="bg-gradient-to-r from-aurora-400 via-nebula-400 to-solar-400 bg-clip-text text-transparent"
                     staggerDelay={0.04}
                     startDelay={0.5}
                   />
@@ -188,8 +200,8 @@ const Hero = () => {
                   whileHover={{ scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="w-14 h-14 bg-purple-500/20 rounded-2xl flex items-center justify-center border border-purple-500/30 backdrop-blur-sm">
-                    <TrendingUp className="w-7 h-7 text-purple-400" />
+                  <div className="w-14 h-14 bg-nebula-500/20 rounded-2xl flex items-center justify-center border border-nebula-500/30 backdrop-blur-sm">
+                    <Star className="w-7 h-7 text-solar-400" />
                   </div>
                   <div>
                     <div className="text-3xl font-black text-white font-mono-data">
@@ -205,15 +217,15 @@ const Hero = () => {
                   whileHover={{ scale: 1.05 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
-                  <div className="w-14 h-14 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30 backdrop-blur-sm">
-                    <Zap className="w-7 h-7 text-emerald-400" />
+                  <div className="w-14 h-14 bg-aurora-500/20 rounded-2xl flex items-center justify-center border border-aurora-500/30 backdrop-blur-sm">
+                    <Moon className="w-7 h-7 text-aurora-400" />
                   </div>
                   <div>
                     <div className="text-3xl font-black text-white font-mono-data">
                       4<span className="text-lg ml-1">Civilizations</span>
                     </div>
                     <div className="text-sm text-white/50 font-medium">
-                      AI Vision Analysis
+                      Cosmic Wisdom Fused
                     </div>
                   </div>
                 </motion.div>

@@ -13,7 +13,7 @@ const HowItWorks = () => {
       description:
         "Enter your birth data and get a personalized cosmic profile spanning Vedic astrology, Chinese zodiac, numerology, and Mayan calendar — your unique trading DNA.",
       icon: Sunrise,
-      gradient: "from-purple-500 to-cyan-500",
+      gradient: "from-nebula-500 to-aurora-500",
       bgGlow: "bg-purple-500/10",
     },
     {
@@ -22,7 +22,7 @@ const HowItWorks = () => {
       description:
         "See your personalized Hora Grid, NEO Score, and optimal trading windows. Know which hours are cosmically aligned and which are enemy hours to avoid.",
       icon: TrendingUp,
-      gradient: "from-emerald-500 to-teal-500",
+      gradient: "from-aurora-500 to-aurora-400",
       bgGlow: "bg-emerald-500/10",
     },
     {
@@ -31,7 +31,7 @@ const HowItWorks = () => {
       description:
         "AI analyzes your trading chart with an optional cosmic overlay — fusing technical patterns with planetary hour energy and environmental awareness.",
       icon: Upload,
-      gradient: "from-orange-500 to-amber-500",
+      gradient: "from-solar-500 to-solar-400",
       bgGlow: "bg-orange-500/10",
     },
     {
@@ -40,7 +40,7 @@ const HowItWorks = () => {
       description:
         "Execute trades backed by both technical analysis and cosmic confluence. When AI signals and cosmic timing agree, you trade with maximum conviction.",
       icon: Target,
-      gradient: "from-pink-500 to-rose-500",
+      gradient: "from-nebula-400 to-pink-500",
       bgGlow: "bg-pink-500/10",
     },
   ];
@@ -50,6 +50,10 @@ const HowItWorks = () => {
       className="py-24 bg-dark-900 relative overflow-hidden"
       id="how-it-works"
     >
+      {/* Star field and constellation lines */}
+      <div className="star-field" />
+      <div className="constellation-lines" />
+
       {/* Background decorative elements with animation */}
       <motion.div
         className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
@@ -102,8 +106,8 @@ const HowItWorks = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-primary/30 via-purple-600/30 to-pink-500/30 blur-3xl scale-110 opacity-50" />
 
               <motion.img
-                src="/images/ai-generated/dashboard-isometric.png"
-                alt="AI Trading Dashboard"
+                src="/images/ai-generated/cosmic-hora-grid.png"
+                alt="Cosmic Hora Grid"
                 className="w-full rounded-2xl shadow-2xl shadow-primary/20 relative z-10"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}

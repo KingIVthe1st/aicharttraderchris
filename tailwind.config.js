@@ -19,6 +19,24 @@ export default {
           700: '#2A2B35',
           600: '#3A3B47',
         },
+        cosmic: {
+          950: '#04050D',
+          900: '#090B1A',
+          800: '#11162A',
+          700: '#1A1F3A',
+        },
+        nebula: {
+          500: '#6D5BFF',
+          400: '#8B7AFF',
+        },
+        aurora: {
+          500: '#2EC5FF',
+          400: '#5DD8FF',
+        },
+        solar: {
+          500: '#F6C453',
+          400: '#FFD97A',
+        },
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease-out forwards',

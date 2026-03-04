@@ -27,13 +27,13 @@ const FinalCTA = () => {
       {/* Epic AI-Generated Background with parallax */}
       <motion.div className="absolute inset-0" style={{ y: backgroundY }}>
         <img
-          src="/images/ai-generated/cta-landscape.png"
-          alt="Trading Data Landscape"
+          src="/images/ai-generated/cosmic-cta-bg.png"
+          alt="Cosmic Aurora Landscape"
           className="w-full h-full object-cover scale-110"
         />
-        {/* Overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-[#0a0a1a]/80 to-[#0a0a1a]/60" />
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-purple-600/10" />
+        {/* Overlay for readability — cosmic palette */}
+        <div className="absolute inset-0 bg-gradient-to-t from-cosmic-950 via-cosmic-950/80 to-cosmic-950/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-nebula-500/10 to-aurora-500/10" />
       </motion.div>
 
       {/* Animated aurora effect */}
@@ -41,7 +41,7 @@ const FinalCTA = () => {
         className="absolute inset-0 opacity-30"
         style={{
           background:
-            "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(30, 174, 219, 0.15), transparent)",
+            "radial-gradient(ellipse 80% 50% at 50% 50%, rgba(46, 197, 255, 0.15), rgba(109, 91, 255, 0.08), transparent)",
         }}
         animate={{
           scale: [1, 1.1, 1],
@@ -92,7 +92,7 @@ const FinalCTA = () => {
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white mb-6 leading-tight">
             Ready for{" "}
             <motion.span
-              className="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent inline-block"
+              className="bg-gradient-to-r from-aurora-400 via-nebula-400 to-solar-400 bg-clip-text text-transparent inline-block"
               animate={{
                 backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
               }}
@@ -123,7 +123,7 @@ const FinalCTA = () => {
             <MagneticButton
               as="a"
               href="/signup"
-              className="group relative px-8 py-4 bg-gradient-to-r from-primary to-purple-600 rounded-xl font-bold text-white text-lg shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 inline-flex items-center gap-2"
+              className="group relative px-8 py-4 bg-gradient-to-r from-nebula-500 to-aurora-500 rounded-xl font-bold text-white text-lg shadow-2xl shadow-nebula-500/30 hover:shadow-aurora-500/50 transition-all duration-300 inline-flex items-center gap-2"
               strength={0.2}
             >
               <span className="relative z-10 flex items-center gap-2">

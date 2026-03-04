@@ -37,57 +37,57 @@ const Features = () => {
   const features = [
     {
       icon: Brain,
-      gradient: "from-purple-500 to-cyan-500",
-      glowColor: "rgba(147, 51, 234, 0.3)",
+      gradient: "from-nebula-500 to-aurora-500",
+      glowColor: "rgba(109, 91, 255, 0.3)",
       title: "AI Chart Analysis",
       description:
         "Upload any trading chart and get instant AI-powered technical analysis — pattern recognition, support/resistance levels, and actionable trade setups.",
-      image: "/images/ai-generated/ai-brain-sphere.png",
+      image: "/images/ai-generated/cosmic-hero-bg.png",
     },
     {
       icon: BarChart3,
-      gradient: "from-emerald-500 to-teal-500",
-      glowColor: "rgba(16, 185, 129, 0.3)",
+      gradient: "from-aurora-500 to-aurora-400",
+      glowColor: "rgba(46, 197, 255, 0.3)",
       title: "Live Cosmic Dashboard",
       description:
         "Real-time planetary hours, Hora Grid, and environmental energy readings — all personalized to your Soul Blueprint and updated throughout the day.",
-      image: "/images/ai-generated/dashboard-holographic.png",
+      image: "/images/ai-generated/cosmic-hora-grid.png",
     },
     {
       icon: Target,
-      gradient: "from-blue-500 to-indigo-500",
-      glowColor: "rgba(59, 130, 246, 0.3)",
+      gradient: "from-nebula-400 to-nebula-500",
+      glowColor: "rgba(139, 122, 255, 0.3)",
       title: "Personalized Soul Blueprint",
       description:
         "Your unique cosmic profile spanning Vedic astrology, Chinese zodiac, Western numerology, and Mayan calendar — the foundation of your trading identity.",
-      image: "/images/ai-generated/hero-cinematic-bg.png",
+      image: "/images/ai-generated/cosmic-soul-blueprint.png",
     },
     {
       icon: TrendingUp,
-      gradient: "from-orange-500 to-amber-500",
-      glowColor: "rgba(249, 115, 22, 0.3)",
+      gradient: "from-solar-500 to-solar-400",
+      glowColor: "rgba(246, 196, 83, 0.3)",
       title: "17-Point NEO Scoring",
       description:
         "A comprehensive Numerological-Environmental-Orbital score combining personal numerology, environmental energy, and planetary alignment into one clear number.",
-      image: "/images/ai-generated/hero-candlesticks.png",
+      image: "/images/ai-generated/cosmic-neo-gauge.png",
     },
     {
       icon: ShieldCheck,
-      gradient: "from-pink-500 to-rose-500",
+      gradient: "from-pink-500 to-nebula-400",
       glowColor: "rgba(236, 72, 153, 0.3)",
       title: "Enemy Hour Alerts",
       description:
         "Get warned before trading during cosmically unfavorable hours. Enemy hour detection keeps you from entering positions when cosmic energy works against you.",
-      image: "/images/ai-generated/risk-shield.png",
+      image: "/images/ai-generated/cosmic-soul-blueprint.png",
     },
     {
       icon: ArrowUpRight,
-      gradient: "from-violet-500 to-purple-500",
-      glowColor: "rgba(139, 92, 246, 0.3)",
+      gradient: "from-aurora-400 to-nebula-500",
+      glowColor: "rgba(46, 197, 255, 0.3)",
       title: "Environmental Energy Awareness",
       description:
         "Moon phase, solar activity, and geomagnetic field data fused into your trading context — because the environment shapes market psychology.",
-      image: "/images/ai-generated/dashboard-isometric.png",
+      image: "/images/ai-generated/cosmic-hora-grid.png",
     },
   ];
 

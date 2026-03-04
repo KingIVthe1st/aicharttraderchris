@@ -11,7 +11,7 @@ import { Sparkles } from "lucide-react";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cosmic-950">
       <Header />
       <main>
         <Hero />

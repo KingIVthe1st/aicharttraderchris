@@ -40,11 +40,14 @@ const FAQ = () => {
   return (
     <section
       id="faq"
-      className="py-16 md:py-24 px-4 bg-white relative overflow-hidden"
+      className="py-16 md:py-24 px-4 cosmic-section relative overflow-hidden"
     >
+      {/* Star field background */}
+      <div className="star-field" />
+
       {/* Decorative background elements */}
       <motion.div
-        className="absolute top-0 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl"
+        className="absolute top-0 right-1/4 w-96 h-96 bg-nebula-500/5 rounded-full blur-3xl"
         animate={{
           scale: [1, 1.2, 1],
           opacity: [0.2, 0.4, 0.2],
@@ -59,10 +62,10 @@ const FAQ = () => {
       <div className="max-w-4xl mx-auto relative z-10">
         {/* Section Header with scroll reveal */}
         <ScrollReveal className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-white/50">
             Everything you need to know about AI + Cosmic Fusion Trading
           </p>
         </ScrollReveal>
@@ -80,12 +83,12 @@ const FAQ = () => {
               >
                 <Accordion.Item
                   value={`item-${index}`}
-                  className="border-b border-gray-200 group"
+                  className="border-b border-white/10 group bg-white/5 backdrop-blur-sm rounded-xl px-4 mb-2"
                 >
                   <Accordion.Header>
-                    <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-left transition-all hover:text-primary">
+                    <Accordion.Trigger className="flex w-full items-center justify-between py-4 text-left transition-all hover:text-aurora-400">
                       <motion.span
-                        className="font-medium text-gray-900 pr-4 group-hover:text-primary transition-colors"
+                        className="font-medium text-white pr-4 group-hover:text-aurora-400 transition-colors"
                         whileHover={{ x: 4 }}
                       >
                         {faq.question}
@@ -95,7 +98,7 @@ const FAQ = () => {
                         whileHover={{ scale: 1.1 }}
                       >
                         <ChevronDown
-                          className="h-4 w-4 text-gray-500 transition-transform duration-300 group-data-[state=open]:rotate-180"
+                          className="h-4 w-4 text-white/40 transition-transform duration-300 group-data-[state=open]:rotate-180"
                           aria-hidden="true"
                         />
                       </motion.div>
@@ -108,7 +111,7 @@ const FAQ = () => {
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.1 }}
                     >
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-white/50 leading-relaxed">
                         {faq.answer}
                       </p>
                     </motion.div>
@@ -122,14 +125,14 @@ const FAQ = () => {
         {/* CTA below FAQ */}
         <ScrollReveal delay={0.5} className="mt-12 text-center">
           <motion.div
-            className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl"
+            className="inline-flex flex-col sm:flex-row items-center gap-4 p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
-            <p className="text-gray-700 font-medium">Still have questions?</p>
+            <p className="text-white/70 font-medium">Still have questions?</p>
             <motion.a
               href="#contact"
-              className="text-primary font-bold hover:text-purple-600 transition-colors"
+              className="text-aurora-400 font-bold hover:text-nebula-400 transition-colors"
               whileHover={{ x: 4 }}
             >
               Contact our team →

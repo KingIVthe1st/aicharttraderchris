@@ -90,6 +90,134 @@
 }
 
 /* ==========================================
+   COSMIC THEME EFFECTS
+   ========================================== */
+
+/* Star field — CSS-only animated twinkling stars */
+.star-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.star-field::before,
+.star-field::after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: white;
+  animation: star-twinkle 4s ease-in-out infinite alternate;
+}
+
+.star-field::before {
+  box-shadow:
+    24px 80px 0 0 rgba(255,255,255,0.5), 120px 40px 0 0 rgba(255,255,255,0.3),
+    200px 120px 0 0 rgba(255,255,255,0.6), 340px 60px 0 0 rgba(255,255,255,0.4),
+    480px 180px 0 0 rgba(255,255,255,0.3), 60px 200px 0 0 rgba(255,255,255,0.5),
+    180px 280px 0 0 rgba(255,255,255,0.2), 300px 320px 0 0 rgba(255,255,255,0.6),
+    420px 240px 0 0 rgba(255,255,255,0.4), 540px 300px 0 0 rgba(255,255,255,0.3),
+    660px 80px 0 0 rgba(255,255,255,0.5), 780px 160px 0 0 rgba(255,255,255,0.4),
+    900px 60px 0 0 rgba(255,255,255,0.3), 1020px 200px 0 0 rgba(255,255,255,0.6),
+    1140px 120px 0 0 rgba(255,255,255,0.4), 80px 400px 0 0 rgba(255,255,255,0.3),
+    220px 440px 0 0 rgba(255,255,255,0.5), 360px 480px 0 0 rgba(255,255,255,0.4),
+    500px 420px 0 0 rgba(255,255,255,0.6), 640px 380px 0 0 rgba(255,255,255,0.3),
+    760px 460px 0 0 rgba(255,255,255,0.5), 880px 340px 0 0 rgba(255,255,255,0.4),
+    1000px 400px 0 0 rgba(255,255,255,0.3), 1120px 480px 0 0 rgba(255,255,255,0.6),
+    40px 540px 0 0 rgba(255,255,255,0.4), 160px 600px 0 0 rgba(255,255,255,0.3),
+    280px 560px 0 0 rgba(255,255,255,0.5), 400px 640px 0 0 rgba(255,255,255,0.4),
+    520px 580px 0 0 rgba(255,255,255,0.6), 640px 660px 0 0 rgba(255,255,255,0.3);
+}
+
+.star-field::after {
+  animation-delay: 2s;
+  animation-duration: 5s;
+  box-shadow:
+    70px 30px 0 0 rgba(255,255,255,0.4), 150px 90px 0 0 rgba(255,255,255,0.6),
+    260px 50px 0 0 rgba(255,255,255,0.3), 380px 130px 0 0 rgba(255,255,255,0.5),
+    500px 70px 0 0 rgba(255,255,255,0.4), 100px 250px 0 0 rgba(255,255,255,0.3),
+    240px 190px 0 0 rgba(255,255,255,0.6), 370px 270px 0 0 rgba(255,255,255,0.4),
+    490px 210px 0 0 rgba(255,255,255,0.5), 610px 150px 0 0 rgba(255,255,255,0.3),
+    730px 230px 0 0 rgba(255,255,255,0.6), 850px 110px 0 0 rgba(255,255,255,0.4),
+    970px 290px 0 0 rgba(255,255,255,0.3), 1090px 170px 0 0 rgba(255,255,255,0.5),
+    50px 350px 0 0 rgba(255,255,255,0.4), 170px 470px 0 0 rgba(255,255,255,0.6),
+    290px 410px 0 0 rgba(255,255,255,0.3), 410px 350px 0 0 rgba(255,255,255,0.5),
+    530px 490px 0 0 rgba(255,255,255,0.4), 650px 430px 0 0 rgba(255,255,255,0.6),
+    770px 370px 0 0 rgba(255,255,255,0.3), 890px 510px 0 0 rgba(255,255,255,0.5),
+    1010px 450px 0 0 rgba(255,255,255,0.4), 1130px 390px 0 0 rgba(255,255,255,0.3),
+    110px 550px 0 0 rgba(255,255,255,0.5), 230px 630px 0 0 rgba(255,255,255,0.4),
+    350px 590px 0 0 rgba(255,255,255,0.6), 470px 550px 0 0 rgba(255,255,255,0.3),
+    590px 610px 0 0 rgba(255,255,255,0.4), 710px 570px 0 0 rgba(255,255,255,0.5);
+}
+
+@keyframes star-twinkle {
+  0% { opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { opacity: 0.5; }
+}
+
+/* Constellation lines — SVG-based decorative lines */
+.constellation-lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'%3E%3Cline x1='100' y1='50' x2='250' y2='120' stroke='%236D5BFF' stroke-width='1'/%3E%3Cline x1='250' y1='120' x2='400' y2='80' stroke='%236D5BFF' stroke-width='1'/%3E%3Cline x1='400' y1='80' x2='350' y2='200' stroke='%232EC5FF' stroke-width='1'/%3E%3Cline x1='350' y1='200' x2='500' y2='250' stroke='%232EC5FF' stroke-width='1'/%3E%3Cline x1='500' y1='250' x2='650' y2='180' stroke='%236D5BFF' stroke-width='1'/%3E%3Cline x1='650' y1='180' x2='700' y2='300' stroke='%232EC5FF' stroke-width='1'/%3E%3Ccircle cx='100' cy='50' r='3' fill='%236D5BFF'/%3E%3Ccircle cx='250' cy='120' r='2' fill='%232EC5FF'/%3E%3Ccircle cx='400' cy='80' r='3' fill='%236D5BFF'/%3E%3Ccircle cx='350' cy='200' r='2' fill='%232EC5FF'/%3E%3Ccircle cx='500' cy='250' r='3' fill='%236D5BFF'/%3E%3Ccircle cx='650' cy='180' r='2' fill='%232EC5FF'/%3E%3Ccircle cx='700' cy='300' r='3' fill='%236D5BFF'/%3E%3Cline x1='150' y1='350' x2='300' y2='420' stroke='%236D5BFF' stroke-width='1'/%3E%3Cline x1='300' y1='420' x2='450' y2='380' stroke='%232EC5FF' stroke-width='1'/%3E%3Cline x1='450' y1='380' x2='600' y2='450' stroke='%236D5BFF' stroke-width='1'/%3E%3Ccircle cx='150' cy='350' r='2' fill='%232EC5FF'/%3E%3Ccircle cx='300' cy='420' r='3' fill='%236D5BFF'/%3E%3Ccircle cx='450' cy='380' r='2' fill='%232EC5FF'/%3E%3Ccircle cx='600' cy='450' r='3' fill='%236D5BFF'/%3E%3C/svg%3E");
+  background-size: cover;
+}
+
+/* Cosmic section — unified dark section base */
+.cosmic-section {
+  background: linear-gradient(180deg, #04050D 0%, #090B1A 50%, #04050D 100%);
+  position: relative;
+}
+
+/* Orbit ring — slow-rotating circle */
+.orbit-ring {
+  position: absolute;
+  border: 1px solid rgba(109, 91, 255, 0.15);
+  border-radius: 50%;
+  animation: orbit-rotate 80s linear infinite;
+  pointer-events: none;
+}
+
+.orbit-ring::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: #6D5BFF;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(109, 91, 255, 0.6);
+}
+
+@keyframes orbit-rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Comet streak — occasional diagonal light */
+.comet-streak {
+  position: absolute;
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(46, 197, 255, 0.6), transparent);
+  transform: rotate(-35deg);
+  animation: comet-fly 8s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes comet-fly {
+  0%, 85%, 100% { opacity: 0; transform: rotate(-35deg) translateX(-200px); }
+  90%, 95% { opacity: 1; transform: rotate(-35deg) translateX(800px); }
+}
+
+/* ==========================================
    PREMIUM EFFECTS - Award-Winning Design
    ========================================== */
 
