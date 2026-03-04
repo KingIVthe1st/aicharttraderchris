@@ -6,29 +6,34 @@ import ScrollReveal from "../ui/ScrollReveal";
 const FAQ = () => {
   const faqs = [
     {
-      question: "What is the 'Daily Edge' and how does it work?",
+      question: "What is the Soul Blueprint and how is it created?",
       answer:
-        "Today's Edge is your daily AI-generated trading recommendation synthesized from 6 live intelligence signals including Smart Money positioning, market regime, and sentiment data. Every morning you receive one clear bias: STRONG BUY, FAVOR SUPPLY, or SIT OUT — so you know exactly what direction to favor.",
+        "Your Soul Blueprint is a personalized cosmic profile generated from your birth data. It combines insights from four ancient civilizations — Vedic astrology, Chinese zodiac, Western numerology, and the Mayan calendar — into a unified trading identity that reveals your natural strengths, optimal trading hours, and cosmic rhythm.",
     },
     {
-      question: "How is the Conviction Multiplier calculated?",
+      question: "What is the 17-Point NEO Score?",
       answer:
-        "The Conviction Multiplier (0.5x to 1.5x) is calculated based on how aligned the 6 intelligence signals are. When signals agree strongly, you get higher conviction (1.2x–1.5x). When signals conflict, conviction is reduced (0.5x–0.8x). This helps you size positions according to system confidence.",
+        "The NEO (Numerological-Environmental-Orbital) Score is a proprietary 17-point composite that fuses your personal numerology, current environmental energy (moon phase, solar activity, geomagnetic conditions), and planetary alignment into a single actionable number. Higher scores indicate stronger cosmic alignment for trading.",
     },
     {
-      question: "Where does the Smart Money data come from?",
+      question: "What are Enemy Hours and how do they affect trading?",
       answer:
-        "Smart Money data is derived from the Commitment of Traders (COT) reports published by the CFTC. We parse and visualize institutional positioning — showing you whether hedge funds and commercial traders are net long, short, or neutral — updated weekly.",
+        "Enemy Hours are time windows when planetary rulers conflict with your Soul Blueprint. Trading during these periods can lead to impulsive decisions and unfavorable outcomes. Our system alerts you before enemy hours begin so you can pause trading or reduce position sizes during cosmically unfavorable windows.",
+    },
+    {
+      question: "Which four civilizations does the cosmic system draw from?",
+      answer:
+        "The Cosmic Fusion system integrates wisdom from four ancient traditions: Vedic astrology (planetary hours and nakshatras), Chinese zodiac (animal year, element cycles), Western numerology (life path and personal day numbers), and the Mayan calendar (Tzolkin day sign energy). Together they form a multi-dimensional cosmic timing framework.",
+    },
+    {
+      question: "How does the AI chart analysis work with the cosmic overlay?",
+      answer:
+        "When you upload a trading chart, our AI performs standard technical analysis — identifying patterns, levels, and setups. You can optionally enable the cosmic overlay, which layers planetary hour energy, your NEO Score, and environmental conditions onto the analysis, giving you a fusion of technical and cosmic confluence.",
     },
     {
       question: "How do I cancel my subscription?",
       answer:
         "You can cancel your subscription anytime from your account settings. Simply navigate to Settings > Billing > Cancel Subscription. Your access will continue until the end of your current billing period, and you won't be charged again.",
-    },
-    {
-      question: "What makes AI Chart Trader 3.0 different from other tools?",
-      answer:
-        "Unlike chart-upload tools that react to what you give them, AI Chart Trader 3.0 delivers proactive daily intelligence. You wake up to your edge — no uploads required. It combines institutional data (COT), market regime detection, strategic scoring, and AI explanations into one decision-ready dashboard.",
     },
   ];
 
@@ -58,7 +63,7 @@ const FAQ = () => {
             Frequently Asked Questions
           </h2>
           <p className="text-lg text-gray-600">
-            Everything you need to know about AI Chart Trader 3.0
+            Everything you need to know about AI + Cosmic Fusion Trading
           </p>
         </ScrollReveal>
 

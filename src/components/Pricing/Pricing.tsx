@@ -6,13 +6,13 @@ import MagneticButton from "../ui/MagneticButton";
 const Pricing = () => {
   const features = [
     "Unlimited AI chart analysis",
-    "Swing & scalp trading patterns",
-    "Advanced risk management",
-    "Multi-timeframe analysis",
-    "Learning resources center",
-    "Real-time market insights",
-    "Position sizing calculator",
-    "AI trade performance reviews",
+    "Personalized Soul Blueprint",
+    "Live Cosmic Timing Dashboard",
+    "17-Point NEO Scoring",
+    "Planetary Hour & Hora Grid",
+    "Enemy Hour Alerts",
+    "Environmental Energy Awareness",
+    "Cosmic overlay on chart analysis",
   ];
 
   return (
@@ -75,12 +75,12 @@ const Pricing = () => {
           </motion.div>
 
           <h2 className="text-5xl md:text-6xl font-black text-gray-900 leading-tight mb-6">
-            Start Trading Smarter
+            Unlock Cosmic Fusion
           </h2>
 
           <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed font-medium mb-6">
-            Get access to AI-powered chart analysis and professional trading
-            tools
+            AI chart analysis fused with 4-civilization cosmic timing and your
+            personalized Soul Blueprint
           </p>
         </ScrollReveal>
 
@@ -190,10 +190,10 @@ const Pricing = () => {
           >
             <div className="text-center sm:text-left">
               <h3 className="text-xl font-black text-gray-900 mb-2">
-                Ready to elevate your trading?
+                Ready for AI + Cosmic Fusion?
               </h3>
               <p className="text-gray-600 font-medium">
-                Join traders who use AI to make smarter decisions
+                Join traders who fuse AI with ancient cosmic wisdom
               </p>
             </div>
             <div className="flex items-center gap-4 text-sm text-gray-500">

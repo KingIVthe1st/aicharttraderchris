@@ -83,7 +83,7 @@ const FinalCTA = () => {
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
             <span className="text-sm font-medium text-white/90">
-              Join 50,000+ traders worldwide
+              Join the Cosmic Fusion trading movement
             </span>
           </motion.div>
         </ScrollReveal>
@@ -105,15 +105,15 @@ const FinalCTA = () => {
                 backgroundSize: "200% 200%",
               }}
             >
-              your daily edge?
+              cosmic trading fusion?
             </motion.span>
           </h2>
         </ScrollReveal>
 
         <ScrollReveal delay={0.2} blur>
           <p className="text-xl md:text-2xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Wake up to institutional-grade intelligence. Six signals. One clear
-            recommendation. Total conviction.
+            Create your Soul Blueprint. Fuse AI chart analysis with ancient
+            cosmic timing. Trade with unparalleled confidence.
           </p>
         </ScrollReveal>
 
@@ -122,12 +122,12 @@ const FinalCTA = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <MagneticButton
               as="a"
-              href="/billing"
+              href="/signup"
               className="group relative px-8 py-4 bg-gradient-to-r from-primary to-purple-600 rounded-xl font-bold text-white text-lg shadow-2xl shadow-primary/30 hover:shadow-primary/50 transition-all duration-300 inline-flex items-center gap-2"
               strength={0.2}
             >
               <span className="relative z-10 flex items-center gap-2">
-                Get Started Now
+                Create Your Soul Blueprint
                 <motion.svg
                   className="w-5 h-5"
                   fill="none"
@@ -162,8 +162,8 @@ const FinalCTA = () => {
           <div className="mt-12 flex flex-wrap justify-center gap-8 text-white/50 text-sm">
             {[
               "Cancel anytime",
-              "Instant access",
-              "Live daily intelligence",
+              "Instant Soul Blueprint",
+              "4-civilization cosmic timing",
             ].map((item, index) => (
               <motion.div
                 key={item}

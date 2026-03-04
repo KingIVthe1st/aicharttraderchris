@@ -36,57 +36,57 @@ const Features = () => {
 
   const features = [
     {
-      icon: Target,
+      icon: Brain,
       gradient: "from-purple-500 to-cyan-500",
       glowColor: "rgba(147, 51, 234, 0.3)",
-      title: "Today's Edge",
+      title: "AI Chart Analysis",
       description:
-        "Wake up to one clear daily recommendation. AI synthesizes 6 live signals into a single actionable edge: STRONG BUY, FAVOR SUPPLY, or SIT OUT.",
+        "Upload any trading chart and get instant AI-powered technical analysis — pattern recognition, support/resistance levels, and actionable trade setups.",
       image: "/images/ai-generated/ai-brain-sphere.png",
     },
     {
       icon: BarChart3,
       gradient: "from-emerald-500 to-teal-500",
       glowColor: "rgba(16, 185, 129, 0.3)",
-      title: "Conviction Multiplier",
+      title: "Live Cosmic Dashboard",
       description:
-        "Know exactly how much to trade. Get real-time position sizing guidance from 0.5x (defensive) to 1.5x (full conviction) based on signal alignment.",
-      image: "/images/ai-generated/hero-candlesticks.png",
-    },
-    {
-      icon: TrendingUp,
-      gradient: "from-blue-500 to-indigo-500",
-      glowColor: "rgba(59, 130, 246, 0.3)",
-      title: "Smart Money Bias",
-      description:
-        "See what institutions are doing. Live COT data reveals whether hedge funds are positioned long, short, or neutral — updated weekly.",
+        "Real-time planetary hours, Hora Grid, and environmental energy readings — all personalized to your Soul Blueprint and updated throughout the day.",
       image: "/images/ai-generated/dashboard-holographic.png",
     },
     {
-      icon: Brain,
-      gradient: "from-orange-500 to-amber-500",
-      glowColor: "rgba(249, 115, 22, 0.3)",
-      title: "Market Regime Detection",
+      icon: Target,
+      gradient: "from-blue-500 to-indigo-500",
+      glowColor: "rgba(59, 130, 246, 0.3)",
+      title: "Personalized Soul Blueprint",
       description:
-        "Instantly know if you are in BULL QUIET, BEAR VOLATILE, or RANGE BOUND conditions. Context changes everything.",
+        "Your unique cosmic profile spanning Vedic astrology, Chinese zodiac, Western numerology, and Mayan calendar — the foundation of your trading identity.",
       image: "/images/ai-generated/hero-cinematic-bg.png",
     },
     {
-      icon: ArrowUpRight,
-      gradient: "from-pink-500 to-rose-500",
-      glowColor: "rgba(236, 72, 153, 0.3)",
-      title: "Strategic + Tactical Scores",
+      icon: TrendingUp,
+      gradient: "from-orange-500 to-amber-500",
+      glowColor: "rgba(249, 115, 22, 0.3)",
+      title: "17-Point NEO Scoring",
       description:
-        "Dual-layer intelligence: Strategic tells you WHAT direction to favor (weekly), Tactical tells you WHEN to act (hourly).",
-      image: "/images/ai-generated/risk-shield.png",
+        "A comprehensive Numerological-Environmental-Orbital score combining personal numerology, environmental energy, and planetary alignment into one clear number.",
+      image: "/images/ai-generated/hero-candlesticks.png",
     },
     {
       icon: ShieldCheck,
+      gradient: "from-pink-500 to-rose-500",
+      glowColor: "rgba(236, 72, 153, 0.3)",
+      title: "Enemy Hour Alerts",
+      description:
+        "Get warned before trading during cosmically unfavorable hours. Enemy hour detection keeps you from entering positions when cosmic energy works against you.",
+      image: "/images/ai-generated/risk-shield.png",
+    },
+    {
+      icon: ArrowUpRight,
       gradient: "from-violet-500 to-purple-500",
       glowColor: "rgba(139, 92, 246, 0.3)",
-      title: "Ask the AI Why",
+      title: "Environmental Energy Awareness",
       description:
-        "Don't trade blind. Click any signal for a personalized AI explanation of the logic, data sources, and historical context behind it.",
+        "Moon phase, solar activity, and geomagnetic field data fused into your trading context — because the environment shapes market psychology.",
       image: "/images/ai-generated/dashboard-isometric.png",
     },
   ];
@@ -110,17 +110,17 @@ const Features = () => {
           >
             <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
             <span className="text-sm font-semibold text-white/80">
-              v3.0 Intelligence Suite
+              Cosmic Fusion Suite
             </span>
           </motion.div>
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-[-0.02em]">
-            Six signals. One edge.
-            <span className="block ai-text-shimmer">Total conviction.</span>
+            Six pillars. One fusion.
+            <span className="block ai-text-shimmer">Cosmic conviction.</span>
           </h2>
           <p className="text-lg text-white/50 max-w-3xl mx-auto leading-relaxed">
-            Stop juggling 50 conflicting indicators. Our AI synthesizes
-            institutional data, market sentiment, and regime detection into one
-            clear daily recommendation.
+            AI technical analysis fused with 4-civilization cosmic timing.
+            Your Soul Blueprint, planetary hours, and environmental energy
+            unite into one powerful trading system.
           </p>
         </ScrollReveal>
 
@@ -152,20 +152,20 @@ const Features = () => {
           >
             <div className="text-left">
               <div className="font-bold text-white">
-                Ready for institutional-grade clarity?
+                Ready to fuse AI with cosmic wisdom?
               </div>
               <div className="text-sm text-white/50">
-                Get your daily edge starting today
+                Create your Soul Blueprint and start trading
               </div>
             </div>
             <div className="h-10 w-px bg-white/10" />
             <motion.a
-              href="/billing"
+              href="/signup"
               className="btn-primary btn-magnetic"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              Get Started
+              Create Your Blueprint
             </motion.a>
           </motion.div>
         </ScrollReveal>

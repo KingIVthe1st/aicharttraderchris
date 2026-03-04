@@ -89,7 +89,7 @@ const Header = () => {
                   ease: "easeInOut",
                 }}
               >
-                3.0
+                Cosmic
               </motion.span>
             </motion.div>
 
@@ -128,12 +128,12 @@ const Header = () => {
                 Log In
               </motion.a>
               <motion.a
-                href="/billing"
+                href="/signup"
                 className="btn-primary !px-6 !py-2 text-sm relative overflow-hidden group"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="relative z-10">Get Started</span>
+                <span className="relative z-10">Create Blueprint</span>
                 {/* Shimmer effect */}
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               </motion.a>
@@ -164,7 +164,7 @@ const Header = () => {
                         AI Chart Trader
                       </span>
                       <span className="px-2 py-0.5 text-xs font-black bg-gradient-to-r from-purple-500 to-cyan-400 text-white rounded-md">
-                        3.0
+                        Cosmic
                       </span>
                     </div>
                     <Dialog.Close asChild>
@@ -196,11 +196,11 @@ const Header = () => {
                         Log In
                       </a>
                       <a
-                        href="/billing"
+                        href="/signup"
                         className="btn-primary w-full !py-3"
                         onClick={() => setMobileMenuOpen(false)}
                       >
-                        Get Started
+                        Create Blueprint
                       </a>
                     </div>
                   </nav>

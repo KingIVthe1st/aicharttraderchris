@@ -133,7 +133,7 @@ const Hero = () => {
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
                 <span className="text-sm font-semibold text-white/90 tracking-wide">
-                  Live Intelligence Dashboard
+                  AI + Cosmic Fusion Trading
                 </span>
               </div>
             </StaggerItem>
@@ -148,11 +148,11 @@ const Hero = () => {
                   animate={{ backgroundPosition: "-200% 0" }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
-                  3.0
+                  Cosmic Fusion
                 </motion.span>
                 <span className="block">
                   <SplitText
-                    text="Institutional-Grade"
+                    text="AI + Cosmic"
                     wordClassName="bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent"
                     staggerDelay={0.04}
                     startDelay={0.3}
@@ -173,9 +173,9 @@ const Hero = () => {
             <StaggerItem>
               <ScrollReveal blur delay={0.2}>
                 <p className="text-lg lg:text-xl text-white/60 max-w-xl leading-relaxed">
-                  Wake up to your edge. Live Smart Money data, AI-powered daily
-                  signals, and conviction-based position sizing — all in one
-                  intelligence dashboard.
+                  AI chart analysis meets 4-civilization cosmic timing and your
+                  personalized Soul Blueprint — fusing technical precision with
+                  ancient wisdom for unparalleled trading confidence.
                 </p>
               </ScrollReveal>
             </StaggerItem>
@@ -193,10 +193,10 @@ const Hero = () => {
                   </div>
                   <div>
                     <div className="text-3xl font-black text-white font-mono-data">
-                      6<span className="text-lg ml-1">Signals</span>
+                      17<span className="text-lg ml-1">-Point</span>
                     </div>
                     <div className="text-sm text-white/50 font-medium">
-                      Live Intelligence
+                      Cosmic Score
                     </div>
                   </div>
                 </motion.div>
@@ -210,10 +210,10 @@ const Hero = () => {
                   </div>
                   <div>
                     <div className="text-3xl font-black text-white font-mono-data">
-                      1<span className="text-lg ml-1">Edge</span>
+                      4<span className="text-lg ml-1">Civilizations</span>
                     </div>
                     <div className="text-sm text-white/50 font-medium">
-                      Daily Recommendation
+                      AI Vision Analysis
                     </div>
                   </div>
                 </motion.div>
@@ -225,12 +225,12 @@ const Hero = () => {
               <div className="flex flex-col sm:flex-row gap-4 pt-4">
                 <MagneticButton
                   as="a"
-                  href="/billing"
+                  href="/signup"
                   className="btn-primary group relative overflow-hidden inline-flex items-center justify-center"
                   strength={0.2}
                 >
                   <span className="relative z-10 flex items-center justify-center gap-2">
-                    Get Started
+                    Create Your Soul Blueprint
                     <svg
                       className="w-4 h-4 group-hover:translate-x-1 transition-transform"
                       fill="none"

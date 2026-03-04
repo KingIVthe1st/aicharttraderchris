@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sunrise, TrendingUp, Target } from "lucide-react";
+import { Sunrise, TrendingUp, Target, Upload } from "lucide-react";
 import ScrollReveal, {
   StaggerContainer,
   StaggerItem,
@@ -9,30 +9,39 @@ const HowItWorks = () => {
   const steps = [
     {
       number: "01",
-      title: "Check Your Daily Edge",
+      title: "Create Your Soul Blueprint",
       description:
-        "Wake up to one clear recommendation. Our AI synthesizes 6 live signals into a single actionable bias: STRONG BUY, FAVOR SUPPLY, or SIT OUT.",
+        "Enter your birth data and get a personalized cosmic profile spanning Vedic astrology, Chinese zodiac, numerology, and Mayan calendar — your unique trading DNA.",
       icon: Sunrise,
       gradient: "from-purple-500 to-cyan-500",
       bgGlow: "bg-purple-500/10",
     },
     {
       number: "02",
-      title: "Follow Smart Money",
+      title: "Check Today's Alignment",
       description:
-        "See exactly where institutions are positioned. Live COT data, market regime detection, and strategic scores reveal the bigger picture.",
+        "See your personalized Hora Grid, NEO Score, and optimal trading windows. Know which hours are cosmically aligned and which are enemy hours to avoid.",
       icon: TrendingUp,
       gradient: "from-emerald-500 to-teal-500",
       bgGlow: "bg-emerald-500/10",
     },
     {
       number: "03",
-      title: "Execute with Conviction",
+      title: "Upload Your Chart",
       description:
-        "Know how much to risk. Your Conviction Multiplier (0.5x to 1.5x) tells you exactly how confident the system is — so you size accordingly.",
-      icon: Target,
+        "AI analyzes your trading chart with an optional cosmic overlay — fusing technical patterns with planetary hour energy and environmental awareness.",
+      icon: Upload,
       gradient: "from-orange-500 to-amber-500",
       bgGlow: "bg-orange-500/10",
+    },
+    {
+      number: "04",
+      title: "Trade With Confidence",
+      description:
+        "Execute trades backed by both technical analysis and cosmic confluence. When AI signals and cosmic timing agree, you trade with maximum conviction.",
+      icon: Target,
+      gradient: "from-pink-500 to-rose-500",
+      bgGlow: "bg-pink-500/10",
     },
   ];
 
@@ -72,12 +81,12 @@ const HowItWorks = () => {
         {/* Section header with scroll reveal */}
         <ScrollReveal className="text-center mb-16">
           <h2 className="text-4xl lg:text-5xl font-black text-white mb-4">
-            Your Daily{" "}
-            <span className="ai-text-shimmer">Intelligence Briefing</span>
+            Your Cosmic{" "}
+            <span className="ai-text-shimmer">Trading Journey</span>
           </h2>
           <p className="text-lg text-white/70 max-w-2xl mx-auto">
-            Institutional-grade insights delivered every morning. No chart
-            uploads. No guesswork.
+            Four steps to fuse AI precision with ancient cosmic wisdom. From
+            Soul Blueprint to confident execution.
           </p>
 
           {/* AI-Generated Dashboard Visual with parallax */}
@@ -106,7 +115,7 @@ const HowItWorks = () => {
 
         {/* Steps grid with staggered reveal */}
         <StaggerContainer
-          className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto"
+          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto"
           staggerDelay={0.15}
         >
           {steps.map((step, index) => {
@@ -170,8 +179,8 @@ const HowItWorks = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
           >
-            Trusted by 50,000+ traders for daily institutional-grade
-            intelligence
+            AI chart analysis + 4-civilization cosmic timing + personalized
+            Soul Blueprint
           </motion.p>
         </ScrollReveal>
       </div>

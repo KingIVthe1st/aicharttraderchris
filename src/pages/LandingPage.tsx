@@ -35,11 +35,11 @@ export default function LandingPage() {
                 AI Chart Trader
               </span>
               <span className="px-1.5 py-0.5 text-[10px] font-black bg-gradient-to-r from-purple-500 to-cyan-400 text-white rounded">
-                3.0
+                Cosmic
               </span>
             </div>
             <p className="text-white/60 text-sm">
-              &copy; 2025 AI Chart Trader. Institutional Clarity. Retail Agility.
+              © 2025 AI Chart Trader. AI Precision. Cosmic Wisdom. Total Fusion.
             </p>
           </div>
         </div>
