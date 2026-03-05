@@ -85,9 +85,30 @@ export default function HoraOrbitWheel({ hours }: Props) {
               <feGaussianBlur stdDeviation="3" result="blur" />
               <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
             </filter>
+            {/* Enhanced beam glow filter */}
             <filter id="hora-beam-glow">
+              <feGaussianBlur stdDeviation="6" result="blur" />
+              <feColorMatrix in="blur" type="matrix"
+                values="1 0 0 0 0.2  0 1 0 0 0.2  0 0 1 0 0.4  0 0 0 1.5 0" result="colorBlur" />
+              <feMerge>
+                <feMergeNode in="colorBlur" />
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {/* Hover glow filter for wedges */}
+            <filter id="hora-hover-glow">
               <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+              <feColorMatrix in="blur" type="matrix"
+                values="1 0 0 0 0.1  0 1 0 0 0.1  0 0 1 0 0.2  0 0 0 1.2 0" result="colorBlur" />
+              <feMerge>
+                <feMergeNode in="colorBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            {/* Text shadow filter for glyph readability */}
+            <filter id="hora-text-shadow">
+              <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="rgba(0,0,0,0.7)" />
             </filter>
             <radialGradient id="hora-center-glow" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="rgba(109,91,255,0.12)" />
@@ -102,11 +123,17 @@ export default function HoraOrbitWheel({ hours }: Props) {
             ))}
           </defs>
 
+          {/* ── Crosshair grid (subtle axis lines) ── */}
+          <line x1={cx} y1={cy - 210} x2={cx} y2={cy + 210}
+            stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 8" />
+          <line x1={cx - 210} y1={cy} x2={cx + 210} y2={cy}
+            stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 8" />
+
           {/* ── Ring separators (dashed circles) ── */}
-          {[175, 155, 140, 120].map(r => (
+          {[175, 155, 140, 120].map((r, i) => (
             <circle key={`sep-${r}`} cx={cx} cy={cy} r={r}
-              fill="none" stroke="rgba(255,255,255,0.06)"
-              strokeWidth="0.5" strokeDasharray="2 6" />
+              fill="none" stroke="rgba(255,255,255,0.08)"
+              strokeWidth={r === 175 ? '0.8' : '0.5'} strokeDasharray="2 6" />
           ))}
 
           {/* ── Outer ring: Vedic planetary wedges (200 -> 175) ── */}
@@ -117,22 +144,23 @@ export default function HoraOrbitWheel({ hours }: Props) {
             const isCurrent = i === currentIdx;
             const isHovered = i === hoveredIdx;
             const past = isPastHour(h.endTime) && !isCurrent;
+            const baseOpacity = past ? 0.25 : (isCurrent ? 1 : (isHovered ? 1 : 0.6));
             return (
               <motion.path key={`outer-${i}`}
                 d={wedgePath(cx, cy, 175, 200, startAngle, endAngle)}
                 fill={`url(#${gradId})`}
-                opacity={past ? 0.25 : (isCurrent || isHovered ? 1 : 0.6)}
-                filter={isCurrent ? 'url(#hora-glow)' : undefined}
-                stroke={isHovered ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.04)'}
-                strokeWidth={isHovered ? 1 : 0.3}
+                opacity={baseOpacity}
+                filter={isCurrent ? 'url(#hora-glow)' : (isHovered ? 'url(#hora-hover-glow)' : undefined)}
+                stroke={isHovered ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.04)'}
+                strokeWidth={isHovered ? 1.2 : 0.3}
                 {...getHandlers(i)}
                 className="cursor-pointer"
-                style={{ outline: 'none' }}
+                style={{ outline: 'none', transition: 'filter 0.2s ease, stroke 0.2s ease, stroke-width 0.2s ease' }}
                 initial={false}
                 animate={{
-                  opacity: past ? 0.25 : (isCurrent || isHovered ? 1 : 0.6),
+                  opacity: baseOpacity,
                 }}
-                transition={{ duration: 0.25 }}
+                transition={{ duration: 0.2 }}
               />
             );
           })}
@@ -146,9 +174,10 @@ export default function HoraOrbitWheel({ hours }: Props) {
             return (
               <text key={`glyph-${i}`} x={pos.x} y={pos.y}
                 textAnchor="middle" dominantBaseline="middle"
-                fontSize="10" fontWeight={isCurrent ? '700' : '400'}
+                fontSize="14" fontWeight={isCurrent ? '700' : '500'}
                 fill="#F6C453"
-                opacity={past ? 0.25 : (isCurrent ? 1 : 0.7)}
+                opacity={past ? 0.3 : (isCurrent ? 1 : 0.85)}
+                filter="url(#hora-text-shadow)"
                 style={{ pointerEvents: 'none' }}>
                 {PLANET_GLYPHS[h.vedic.planet] ?? h.vedic.planet.slice(0, 2)}
               </text>
@@ -189,19 +218,31 @@ export default function HoraOrbitWheel({ hours }: Props) {
             return (
               <text key={`animal-${i}`} x={pos.x} y={pos.y}
                 textAnchor="middle" dominantBaseline="middle"
-                fontSize="9" fill="rgba(255,255,255,0.6)"
+                fontSize="13" fill="rgba(255,255,255,0.85)"
+                filter="url(#hora-text-shadow)"
                 style={{ pointerEvents: 'none' }}>
                 {getAnimalEmoji(seg.animal)}
               </text>
             );
           })}
 
-          {/* ── Center orb (r=85) ── */}
+          {/* ── Center orb (r=85) with pulsing glow ── */}
           <circle cx={cx} cy={cy} r={85}
             fill="rgba(4,5,13,0.95)"
             stroke="rgba(109,91,255,0.15)" strokeWidth="1" />
-          <circle cx={cx} cy={cy} r={85}
-            fill="url(#hora-center-glow)" />
+          <motion.circle cx={cx} cy={cy} r={85}
+            fill="url(#hora-center-glow)"
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          {/* Pulsing glow ring around center orb */}
+          <motion.circle cx={cx} cy={cy} r={86}
+            fill="none"
+            stroke="rgba(109,91,255,0.12)"
+            strokeWidth="1.5"
+            animate={{ opacity: [0.3, 0.7, 0.3], strokeWidth: [1, 2, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
 
           {/* ── Current hour beam (triangular path) ── */}
           {currentIdx >= 0 && (() => {
@@ -217,12 +258,12 @@ export default function HoraOrbitWheel({ hours }: Props) {
             return (
               <motion.path
                 d={`M ${pLeft.x} ${pLeft.y} L ${pOutLeft.x} ${pOutLeft.y} L ${pOutRight.x} ${pOutRight.y} L ${pRight.x} ${pRight.y} Z`}
-                fill="rgba(255,255,255,0.12)"
-                stroke="rgba(255,255,255,0.25)"
-                strokeWidth="0.5"
+                fill="rgba(255,255,255,0.18)"
+                stroke="rgba(255,255,255,0.35)"
+                strokeWidth="0.7"
                 filter="url(#hora-beam-glow)"
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               />
             );
           })()}
@@ -232,18 +273,18 @@ export default function HoraOrbitWheel({ hours }: Props) {
             const nodeColor = NODE_COLORS[hovered.nodeType] ?? '#6B7280';
             return (
               <>
-                <text x={cx} y={cy - 24} textAnchor="middle" fontSize="20" fontWeight="bold" fill="white">
+                <text x={cx} y={cy - 24} textAnchor="middle" fontSize="22" fontWeight="bold" fill="white">
                   {PLANET_GLYPHS[hovered.vedic.planet] ?? hovered.vedic.planet}
                 </text>
-                <text x={cx} y={cy - 6} textAnchor="middle" fontSize="11" fill="rgba(255,255,255,0.7)" fontWeight="600">
+                <text x={cx} y={cy - 4} textAnchor="middle" fontSize="14" fill="rgba(255,255,255,0.8)" fontWeight="600">
                   {hovered.vedic.planet}
                 </text>
-                <text x={cx} y={cy + 14} textAnchor="middle" fontSize="16">
+                <text x={cx} y={cy + 16} textAnchor="middle" fontSize="18">
                   {getAnimalEmoji(hovered.chinese.animal)}
                 </text>
-                <rect x={cx - 28} y={cy + 24} width="56" height="16" rx="8"
+                <rect x={cx - 30} y={cy + 26} width="60" height="18" rx="9"
                   fill={nodeColor} opacity="0.2" />
-                <text x={cx} y={cy + 35} textAnchor="middle" fontSize="7" fontWeight="bold"
+                <text x={cx} y={cy + 38} textAnchor="middle" fontSize="8" fontWeight="bold"
                   fill={nodeColor}>
                   {hovered.nodeType.replace(/_/g, ' ')}
                 </text>
@@ -251,20 +292,20 @@ export default function HoraOrbitWheel({ hours }: Props) {
             );
           })() : (
             <>
-              <text x={cx} y={cy - 16} textAnchor="middle" fontSize="9" fontWeight="600"
-                fill="rgba(255,255,255,0.35)" letterSpacing="2">TEMPORAL</text>
-              <text x={cx} y={cy} textAnchor="middle" fontSize="9" fontWeight="600"
-                fill="rgba(255,255,255,0.35)" letterSpacing="2">ORBIT</text>
-              <text x={cx} y={cy + 16} textAnchor="middle" fontSize="9" fontWeight="600"
-                fill="rgba(255,255,255,0.35)" letterSpacing="2">WHEEL</text>
-              <text x={cx} y={cy + 36} textAnchor="middle" fontSize="7"
-                fill="rgba(255,255,255,0.2)">Tap a segment</text>
+              <text x={cx} y={cy - 14} textAnchor="middle" fontSize="12" fontWeight="600"
+                fill="rgba(255,255,255,0.4)" letterSpacing="3">TEMPORAL</text>
+              <text x={cx} y={cy + 4} textAnchor="middle" fontSize="12" fontWeight="600"
+                fill="rgba(255,255,255,0.4)" letterSpacing="3">ORBIT</text>
+              <text x={cx} y={cy + 22} textAnchor="middle" fontSize="12" fontWeight="600"
+                fill="rgba(255,255,255,0.4)" letterSpacing="3">WHEEL</text>
+              <text x={cx} y={cy + 40} textAnchor="middle" fontSize="10"
+                fill="rgba(255,255,255,0.25)">Tap a segment</text>
             </>
           )}
         </svg>
       </div>
 
-      {/* ── Legend pills ── */}
+      {/* ── Legend pills (glass treatment) ── */}
       <div className="flex items-center justify-center gap-2 mt-3 flex-wrap">
         {[
           { label: 'Vedic', color: '#F6C453' },
@@ -272,9 +313,10 @@ export default function HoraOrbitWheel({ hours }: Props) {
           { label: 'Chinese', color: '#22C55E' },
         ].map(l => (
           <span key={l.label}
-            className="bg-white/[0.03] border border-white/[0.06] rounded-full px-3 py-1 text-[10px] font-medium tracking-wide"
-            style={{ color: l.color }}>
-            {l.label}
+            className="rounded-full px-3 py-1.5 bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm flex items-center gap-1.5"
+            style={{ fontSize: '11px' }}>
+            <span className="w-2.5 h-2.5 rounded-full inline-block" style={{ backgroundColor: l.color, opacity: 0.85 }} />
+            <span className="font-medium tracking-wide" style={{ color: l.color }}>{l.label}</span>
           </span>
         ))}
       </div>
@@ -282,10 +324,10 @@ export default function HoraOrbitWheel({ hours }: Props) {
       {/* ── Detail panel ── */}
       {hovered && (
         <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
-          className="mt-4 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4 text-sm">
-          <p className="text-gray-400 text-[10px] uppercase tracking-wider mb-1.5 font-medium">Trading Guidance</p>
-          <p className="text-gray-200 leading-relaxed text-xs">{hovered.tradingGuidance}</p>
-          <div className="mt-3 flex flex-wrap gap-3 text-[10px] text-gray-500">
+          className="mt-4 bg-white/[0.02] border border-white/[0.06] rounded-xl p-4">
+          <p className="text-gray-400 text-[11px] uppercase tracking-wider mb-1.5 font-medium">Trading Guidance</p>
+          <p className="text-gray-200 leading-relaxed text-[12px]">{hovered.tradingGuidance}</p>
+          <div className="mt-3 flex flex-wrap gap-3 text-[11px] text-gray-500">
             <span>Vedic: <span className="text-gray-300">{hovered.vedic.planet}</span></span>
             <span>Babylonian: <span className="text-gray-300">{hovered.babylonian.planet}</span></span>
             <span>Egyptian: <span className="text-gray-300">{hovered.egyptian.decanEnergy}</span></span>
