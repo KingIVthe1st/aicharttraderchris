@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import type { SoulBlueprint } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props {
   blueprint: SoulBlueprint;
@@ -58,7 +60,12 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
             </span>
           </div>
           <div>
-            <p className="text-xs text-nebula-400 uppercase tracking-widest font-medium">Life Path</p>
+            <div className="flex items-center gap-1">
+              <p className="text-xs text-nebula-400 uppercase tracking-widest font-medium">Life Path</p>
+              <CosmicInfoTooltip label="About life path number">
+                <p>{COSMIC_TOOLTIPS.lifePathNumber.text}</p>
+              </CosmicInfoTooltip>
+            </div>
             <p className="text-white font-semibold text-sm">{archetype}</p>
             <p className="text-gray-500 text-xs">{blueprint.fullName}</p>
           </div>
@@ -67,10 +74,10 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
         {/* CENTER: Sun / Moon / Rising badges */}
         <div className="flex items-center gap-2">
           {[
-            { label: 'Sun', glyph: sunGlyph, sign: blueprint.sunSign, color: 'solar' },
-            { label: 'Moon', glyph: moonGlyph, sign: blueprint.moonSign, color: 'aurora' },
-            { label: 'Rising', glyph: risingGlyph, sign: blueprint.risingSign, color: 'nebula' },
-          ].map(({ label, glyph, sign, color }) => (
+            { label: 'Sun', glyph: sunGlyph, sign: blueprint.sunSign, color: 'solar', tooltipKey: 'sunSign' as const },
+            { label: 'Moon', glyph: moonGlyph, sign: blueprint.moonSign, color: 'aurora', tooltipKey: 'moonSign' as const },
+            { label: 'Rising', glyph: risingGlyph, sign: blueprint.risingSign, color: 'nebula', tooltipKey: 'risingSign' as const },
+          ].map(({ label, glyph, sign, color, tooltipKey }) => (
             <div
               key={label}
               className={`flex flex-col items-center px-3 py-2 rounded-xl border ${
@@ -80,11 +87,16 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
               }`}
             >
               <span className="text-xl leading-none">{glyph}</span>
-              <span className={`text-xs font-bold mt-0.5 ${
-                color === 'solar' ? 'text-solar-400' :
-                color === 'aurora' ? 'text-aurora-400' :
-                'text-nebula-400'
-              }`}>{label}</span>
+              <div className="flex items-center gap-1 mt-0.5">
+                <span className={`text-xs font-bold ${
+                  color === 'solar' ? 'text-solar-400' :
+                  color === 'aurora' ? 'text-aurora-400' :
+                  'text-nebula-400'
+                }`}>{label}</span>
+                <CosmicInfoTooltip label={`About ${label.toLowerCase()} sign`}>
+                  <p>{COSMIC_TOOLTIPS[tooltipKey].text}</p>
+                </CosmicInfoTooltip>
+              </div>
               <span className="text-white text-[11px] font-medium">{sign}</span>
             </div>
           ))}
@@ -99,13 +111,23 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
           </div>
           <div className="flex flex-col gap-1">
             <div className="px-2 py-1 rounded-lg border border-purple-500/20 bg-purple-500/10">
-              <span className="text-purple-400 text-xs">Ruler </span>
-              <span className="text-white text-xs font-semibold">{blueprint.planetaryRuler}</span>
+              <div className="flex items-center gap-1">
+                <span className="text-purple-400 text-xs">Ruler </span>
+                <span className="text-white text-xs font-semibold">{blueprint.planetaryRuler}</span>
+                <CosmicInfoTooltip label="About planetary ruler">
+                  <p>{COSMIC_TOOLTIPS.planetaryRuler.text}</p>
+                </CosmicInfoTooltip>
+              </div>
             </div>
             {blueprint.nakshatra && (
               <div className="px-2 py-1 rounded-lg border border-indigo-500/20 bg-indigo-500/10">
-                <span className="text-indigo-400 text-xs">Nakshatra </span>
-                <span className="text-white text-xs font-semibold truncate max-w-[100px] inline-block align-bottom">{blueprint.nakshatra}</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-indigo-400 text-xs">Nakshatra </span>
+                  <span className="text-white text-xs font-semibold truncate max-w-[100px] inline-block align-bottom">{blueprint.nakshatra}</span>
+                  <CosmicInfoTooltip label="About nakshatra">
+                    <p>{COSMIC_TOOLTIPS.nakshatra.text}</p>
+                  </CosmicInfoTooltip>
+                </div>
               </div>
             )}
           </div>
