@@ -1,16 +1,32 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { NEOScore } from '@/types/cosmic';
+import CosmicGlassCard from './shared/CosmicGlassCard';
+import CosmicStatusOrb from './shared/CosmicStatusOrb';
 import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
 import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props { neoScore: NEOScore }
 
 const NEO_COLORS = {
-  ULTRA_GREEN: { stroke: '#10B981', glow: '#10B981', label: 'Ultra Aligned' },
-  GREEN:       { stroke: '#22C55E', glow: '#22C55E', label: 'Aligned' },
-  YELLOW:      { stroke: '#F59E0B', glow: '#F59E0B', label: 'Mixed' },
-  RED:         { stroke: '#EF4444', glow: '#EF4444', label: 'Conflicted' },
+  ULTRA_GREEN: { stroke: '#10B981', label: 'Ultra Aligned' },
+  GREEN:       { stroke: '#22C55E', label: 'Aligned' },
+  YELLOW:      { stroke: '#F59E0B', label: 'Mixed' },
+  RED:         { stroke: '#EF4444', label: 'Conflicted' },
+};
+
+const ENERGY_GRADIENTS: Record<string, { inner: string; outer: string }> = {
+  ULTRA_GREEN: { inner: 'rgba(16,185,129,0.2)',  outer: 'rgba(16,185,129,0)' },
+  GREEN:       { inner: 'rgba(34,197,94,0.1)',    outer: 'rgba(34,197,94,0)' },
+  YELLOW:      { inner: 'rgba(245,158,11,0.08)',  outer: 'rgba(245,158,11,0)' },
+  RED:         { inner: 'transparent',             outer: 'transparent' },
+};
+
+const ACCENT_MAP: Record<string, 'emerald' | 'amber' | 'red'> = {
+  ULTRA_GREEN: 'emerald',
+  GREEN: 'emerald',
+  YELLOW: 'amber',
+  RED: 'red',
 };
 
 function arcPath(cx: number, cy: number, r: number, startDeg: number, endDeg: number): string {
@@ -26,113 +42,173 @@ function arcPath(cx: number, cy: number, r: number, startDeg: number, endDeg: nu
 export default function NEOCoreReactor({ neoScore }: Props) {
   const { total, classification, factors } = neoScore;
   const theme = NEO_COLORS[classification];
-  const cx = 120, cy = 120, outerR = 100, innerR = 68;
-  const totalFactors = factors.length;
-  const gapDeg = 3;
-  const arcPerSegment = (300 - gapDeg * totalFactors) / totalFactors;
-  const [expandedFactor, setExpandedFactor] = useState<number | null>(null);
+  const energy = ENERGY_GRADIENTS[classification];
+  const dynamicAccent = ACCENT_MAP[classification];
+  const { selected, getHandlers } = useInteractiveSelection<number>();
+
+  const cx = 140, cy = 140, outerR = 110, innerR = 72;
+  const totalFactors = factors.length; // 17
+  const gapDeg = 2;
+  const arcPerSegment = (360 - gapDeg * totalFactors) / totalFactors;
+
+  const gradientId = 'neo-energy-gradient';
+  const glowFilterId = 'neo-segment-glow';
 
   return (
-    <div className="flex flex-col items-center">
-      <svg width="240" height="240" viewBox="0 0 240 240">
-        <defs>
-          <filter id="neo-glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-          <filter id="neo-glow-strong">
-            <feGaussianBlur stdDeviation="5" result="blur" />
-            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-          </filter>
-        </defs>
+    <CosmicGlassCard accentColor={dynamicAccent}>
+      <div className="flex flex-col items-center">
+        {/* Reactor SVG */}
+        <svg width="280" height="280" viewBox="0 0 280 280">
+          <defs>
+            <filter id={glowFilterId}>
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+            <radialGradient id={gradientId} cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor={energy.inner} />
+              <stop offset="100%" stopColor={energy.outer} />
+            </radialGradient>
+          </defs>
 
-        <circle cx={cx} cy={cy} r={outerR} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="12" />
-
-        {factors.map((f, i) => {
-          const startDeg = -150 + i * (arcPerSegment + gapDeg);
-          const endDeg = startDeg + arcPerSegment;
-          const passed = f.score === 1;
-          return (
-            <motion.path
-              key={f.id}
-              d={arcPath(cx, cy, outerR, startDeg, endDeg)}
-              fill="none"
-              stroke={passed ? theme.stroke : 'rgba(255,255,255,0.08)'}
-              strokeWidth="10"
-              strokeLinecap="round"
-              filter={passed ? 'url(#neo-glow)' : undefined}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.4, delay: i * 0.04, ease: 'easeOut' }}
-            />
-          );
-        })}
-
-        <circle cx={cx} cy={cy} r={innerR - 2} fill="rgba(4,5,13,0.95)" />
-        <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
-
-        {classification === 'ULTRA_GREEN' && (
-          <motion.circle
-            cx={cx} cy={cy} r={innerR - 2}
-            fill="none" stroke={theme.glow} strokeWidth="1"
-            filter="url(#neo-glow-strong)"
-            animate={{ opacity: [0.4, 1, 0.4] }}
-            transition={{ duration: 2, repeat: Infinity }}
+          {/* Containment rings */}
+          <circle
+            cx={cx} cy={cy} r={100}
+            stroke="rgba(255,255,255,0.06)"
+            strokeDasharray="3 6"
+            fill="none"
+            strokeWidth="1"
           />
-        )}
+          <circle
+            cx={cx} cy={cy} r={120}
+            stroke="rgba(255,255,255,0.06)"
+            strokeDasharray="3 6"
+            fill="none"
+            strokeWidth="1"
+          />
 
-        <text x={cx} y={cy - 10} textAnchor="middle" dominantBaseline="middle"
-          fontSize="36" fontWeight="900" fill={theme.stroke}
-          style={{ filter: `drop-shadow(0 0 8px ${theme.glow})` }}>
-          {total}
-        </text>
-        <text x={cx} y={cy + 14} textAnchor="middle" fontSize="11" fill="rgba(255,255,255,0.4)">
-          / {totalFactors}
-        </text>
-        <text x={cx} y={cy + 32} textAnchor="middle" fontSize="10" fill={theme.stroke} fontWeight="600">
-          {theme.label.toUpperCase()}
-        </text>
-      </svg>
+          {/* Arc segments */}
+          {factors.map((f, i) => {
+            const startDeg = i * (arcPerSegment + gapDeg);
+            const endDeg = startDeg + arcPerSegment;
+            const passed = f.score === 1;
+            return (
+              <motion.path
+                key={f.id}
+                d={arcPath(cx, cy, outerR, startDeg, endDeg)}
+                fill="none"
+                stroke={passed ? theme.stroke : 'rgba(255,255,255,0.05)'}
+                strokeWidth="10"
+                strokeLinecap="round"
+                filter={passed ? `url(#${glowFilterId})` : undefined}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: i * 0.04, ease: 'easeOut' }}
+              />
+            );
+          })}
 
-      <div className="flex items-center gap-1.5 mt-1">
-        <span className="text-xs font-semibold" style={{ color: theme.stroke }}>{theme.label}</span>
-        <CosmicInfoTooltip label="NEO classification info">
-          {COSMIC_TOOLTIPS.neoClassification.text}
-        </CosmicInfoTooltip>
-      </div>
-
-      <div className="flex items-center gap-1.5 mt-3 mb-1">
-        <span className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">NEO Factors</span>
-        <CosmicInfoTooltip label="NEO score info" topic={COSMIC_TOOLTIPS.neoScore.topic}>
-          {COSMIC_TOOLTIPS.neoScore.text}
-        </CosmicInfoTooltip>
-      </div>
-
-      <div className="w-full space-y-1.5 max-h-48 overflow-y-auto">
-        {factors.map((f, i) => (
-          <div
-            key={f.id}
-            className="flex items-start gap-2 text-xs cursor-pointer"
-            onClick={() => setExpandedFactor(prev => prev === i ? null : i)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                setExpandedFactor(prev => prev === i ? null : i);
+          {/* Inner energy field */}
+          {classification !== 'RED' && (
+            <circle
+              cx={cx} cy={cy} r={innerR}
+              fill={`url(#${gradientId})`}
+              style={
+                classification === 'ULTRA_GREEN'
+                  ? { animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }
+                  : undefined
               }
-            }}
-            tabIndex={0}
-            role="button"
+            />
+          )}
+
+          {/* Center glass circle */}
+          <circle cx={cx} cy={cy} r={innerR} fill="rgba(4,5,13,0.95)" />
+          <circle cx={cx} cy={cy} r={innerR} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+
+          {/* Re-draw energy on top for the glow to overlay the glass edge */}
+          {classification !== 'RED' && (
+            <circle
+              cx={cx} cy={cy} r={innerR - 1}
+              fill={`url(#${gradientId})`}
+              style={
+                classification === 'ULTRA_GREEN'
+                  ? { animation: 'pulse 2s cubic-bezier(0.4,0,0.6,1) infinite' }
+                  : undefined
+              }
+            />
+          )}
+
+          {/* Score text */}
+          <text
+            x={cx} y={cy - 8}
+            textAnchor="middle"
+            dominantBaseline="middle"
+            className="font-mono"
+            fontSize="36"
+            fontWeight="900"
+            fill={theme.stroke}
+            style={{ filter: `drop-shadow(0 0 8px ${theme.stroke})` }}
           >
-            <span className={`mt-0.5 flex-shrink-0 w-3 h-3 rounded-full ${f.score === 1 ? 'bg-emerald-400' : 'bg-red-400/50'}`} />
-            <div>
-              <span className={`font-medium ${f.score === 1 ? 'text-white' : 'text-gray-500'}`}>{f.name}</span>
-              {expandedFactor === i && (
-                <p className="text-gray-600 leading-tight">{f.reasoning}</p>
-              )}
-            </div>
-          </div>
-        ))}
+            {total}
+          </text>
+          <text x={cx} y={cy + 16} textAnchor="middle" fontSize="12" fill="rgba(255,255,255,0.35)">
+            /17
+          </text>
+          <text x={cx} y={cy + 34} textAnchor="middle" fontSize="10" fill={theme.stroke} fontWeight="600">
+            {theme.label.toUpperCase()}
+          </text>
+        </svg>
+
+        {/* Classification label + tooltip */}
+        <div className="flex items-center gap-1.5 mt-1">
+          <span className="text-xs font-semibold" style={{ color: theme.stroke }}>{theme.label}</span>
+          <CosmicInfoTooltip label="NEO classification info">
+            {COSMIC_TOOLTIPS.neoClassification.text}
+          </CosmicInfoTooltip>
+        </div>
+
+        {/* Factor header + tooltip */}
+        <div className="flex items-center gap-1.5 mt-3 mb-1">
+          <span className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">NEO Factors</span>
+          <CosmicInfoTooltip label="NEO score info" topic={COSMIC_TOOLTIPS.neoScore.topic}>
+            {COSMIC_TOOLTIPS.neoScore.text}
+          </CosmicInfoTooltip>
+        </div>
+
+        {/* Factor grid */}
+        <div className="w-full grid grid-cols-2 gap-2 mt-4">
+          {factors.map((f, i) => {
+            const isExpanded = selected === i;
+            const handlers = getHandlers(i);
+            return (
+              <div
+                key={f.id}
+                className="bg-white/[0.03] border border-white/[0.04] rounded-lg px-3 py-2 cursor-pointer"
+                {...handlers}
+              >
+                <div className="flex items-center gap-2 text-xs">
+                  <CosmicStatusOrb status={f.score === 1 ? 'positive' : 'negative'} size="sm" />
+                  <span className={`font-medium ${f.score === 1 ? 'text-white' : 'text-gray-500'}`}>
+                    {f.name}
+                  </span>
+                </div>
+                {isExpanded && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="bg-white/[0.02] rounded-lg p-2 mt-1 text-gray-500 text-xs"
+                  >
+                    {f.reasoning}
+                  </motion.div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </CosmicGlassCard>
   );
 }
