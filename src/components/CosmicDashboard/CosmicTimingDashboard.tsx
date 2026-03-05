@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
 import { cosmicApi } from '@/lib/api/cosmic';
 import type { CosmicIntelligence, SoulBlueprint, WeeklyCalendarDay } from '@/types/cosmic';
 
@@ -9,7 +8,6 @@ import NEOCoreReactor from './NEOCoreReactor';
 import CosmicPressureTimeline from './CosmicPressureTimeline';
 import HoraOrbitWheel from './HoraOrbitWheel';
 import CivilizationCards from './CivilizationCards';
-import NextHoraCountdown from './NextHoraCountdown';
 import NumerologyHarmonics from './NumerologyHarmonics';
 import EnvironmentalGauges from './EnvironmentalGauges';
 import ConstellationRing from './ConstellationRing';
@@ -22,18 +20,10 @@ import MoonPhaseHero from './MoonPhaseHero';
 import MarketTimingGuide from './MarketTimingGuide';
 import PlanetaryCommandCenter from './PlanetaryCommandCenter';
 
-const sectionVariants = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.55, delay: i * 0.08, ease: 'easeOut' as const } }),
-};
-
-function Section({ children, index }: { children: React.ReactNode; index: number }) {
-  return (
-    <motion.div variants={sectionVariants} initial="hidden" animate="visible" custom={index}>
-      {children}
-    </motion.div>
-  );
-}
+// UX overhaul primitives
+import CosmicZoneAccordion from './shared/CosmicZoneAccordion';
+import CosmicSectionShell from './shared/CosmicSectionShell';
+import { SECTION_META } from './config/sectionMeta';
 
 export default function CosmicTimingDashboard() {
   const [data, setData] = useState<CosmicIntelligence | null>(null);
@@ -127,103 +117,101 @@ export default function CosmicTimingDashboard() {
     h => Date.now() >= new Date(h.startTime).getTime() && Date.now() < new Date(h.endTime).getTime()
   );
   const currentHora = data.horaGrid.hours[currentHoraIndex >= 0 ? currentHoraIndex : 0];
-  const nextHour = data.planetaryHours.nextHours[0] ?? data.planetaryHours.currentHour;
 
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-6 pb-10">
 
-      {/* ── 0. Soul Blueprint Identity Bar ── */}
-      <Section index={0}>
-        <SoulBlueprintIdentityBar
-          blueprint={blueprint}
-          personalDay={data.numerology.personalDay}
-          isAlignmentDay={data.numerology.isAlignmentDay}
-        />
-      </Section>
+      {/* ═══════════════ NOW ZONE ═══════════════ */}
+      <CosmicZoneAccordion zone="NOW">
 
-      {/* ── 1. Macro Time Cycles ── */}
-      <Section index={1}>
-        <MacroTimeCycles moonPhase={data.moonPhase} />
-      </Section>
-
-      {/* ── 2. Intraday Time Cycles ── */}
-      <Section index={2}>
-        <IntradayTimeCycles
-          horaGrid={data.horaGrid}
-          planetaryHours={data.planetaryHours}
-          bestTradingWindows={data.bestTradingWindows}
-        />
-      </Section>
-
-      {/* ── 3. Optimum Trading Calendar ── */}
-      <Section index={3}>
-        <TradingDayCalendar calendar={calendar} isLoading={calendarLoading} />
-      </Section>
-
-      {/* ── 4. Moon Phase Hero + Market Timing Guide ── */}
-      <Section index={4}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <MoonPhaseHero
-            moonPhase={data.moonPhase}
-            vocStatus={data.vocStatus}
-            moonSign={data.moonSign ?? 'Unknown'}
+        <CosmicSectionShell meta={SECTION_META.soulBlueprint} index={0}>
+          <SoulBlueprintIdentityBar
+            blueprint={blueprint}
+            personalDay={data.numerology.personalDay}
+            isAlignmentDay={data.numerology.isAlignmentDay}
           />
-          <MarketTimingGuide
-            moonSign={data.moonSign ?? 'Unknown'}
-            planetaryRuler={blueprint.planetaryRuler}
+        </CosmicSectionShell>
+
+        <CosmicSectionShell meta={SECTION_META.moonPhase} index={1}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <MoonPhaseHero
+              moonPhase={data.moonPhase}
+              vocStatus={data.vocStatus}
+              moonSign={data.moonSign ?? 'Unknown'}
+            />
+            <MarketTimingGuide
+              moonSign={data.moonSign ?? 'Unknown'}
+              planetaryRuler={blueprint.planetaryRuler}
+            />
+          </div>
+        </CosmicSectionShell>
+
+        <CosmicSectionShell meta={SECTION_META.intradayWindows} index={2}>
+          <IntradayTimeCycles
+            horaGrid={data.horaGrid}
+            planetaryHours={data.planetaryHours}
+            bestTradingWindows={data.bestTradingWindows}
           />
-        </div>
-      </Section>
+        </CosmicSectionShell>
 
-      {/* ── 5. Planetary Command Center ── */}
-      <Section index={5}>
-        <PlanetaryCommandCenter
-          planetaryHours={data.planetaryHours}
-          planetaryRuler={blueprint.planetaryRuler as import('@/types/cosmic').Planet}
-        />
-      </Section>
+      </CosmicZoneAccordion>
 
-      {/* ── 6. NEO Core Reactor + Cosmic Pressure Timeline ── */}
-      <Section index={6}>
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-          <div className="lg:col-span-2">
-            <NEOCoreReactor neoScore={data.neoScore} />
+      {/* ═══════════════ THIS WEEK ZONE ═══════════════ */}
+      <CosmicZoneAccordion zone="THIS_WEEK">
+
+        <CosmicSectionShell meta={SECTION_META.macroCycles} index={3}>
+          <MacroTimeCycles moonPhase={data.moonPhase} />
+        </CosmicSectionShell>
+
+        <CosmicSectionShell meta={SECTION_META.tradingCalendar} index={4}>
+          <TradingDayCalendar calendar={calendar} isLoading={calendarLoading} />
+        </CosmicSectionShell>
+
+        <CosmicSectionShell meta={SECTION_META.planetaryCommand} index={5}>
+          <PlanetaryCommandCenter
+            planetaryHours={data.planetaryHours}
+            planetaryRuler={blueprint.planetaryRuler as import('@/types/cosmic').Planet}
+          />
+        </CosmicSectionShell>
+
+      </CosmicZoneAccordion>
+
+      {/* ═══════════════ DEEP KNOWLEDGE ZONE ═══════════════ */}
+      <CosmicZoneAccordion zone="DEEP">
+
+        <CosmicSectionShell meta={SECTION_META.neoReactor} index={6}>
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+            <div className="lg:col-span-2">
+              <NEOCoreReactor neoScore={data.neoScore} />
+            </div>
+            <div className="lg:col-span-3">
+              <CosmicPressureTimeline hours={data.horaGrid.hours} />
+            </div>
           </div>
-          <div className="lg:col-span-3">
-            <CosmicPressureTimeline hours={data.horaGrid.hours} />
+        </CosmicSectionShell>
+
+        <CosmicSectionShell meta={SECTION_META.horaWheel} index={7}>
+          <HoraOrbitWheel hours={data.horaGrid.hours} />
+        </CosmicSectionShell>
+
+        {currentHora && (
+          <CosmicSectionShell meta={SECTION_META.civilizations} index={8}>
+            <CivilizationCards currentHour={currentHora} />
+          </CosmicSectionShell>
+        )}
+
+        <CosmicSectionShell meta={SECTION_META.numerologyEnv} index={9}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <NumerologyHarmonics numerology={data.numerology} />
+            <EnvironmentalGauges env={data.environmentalEnergy} />
           </div>
-        </div>
-      </Section>
+        </CosmicSectionShell>
 
-      {/* ── 7. Hora Orbit Wheel ── */}
-      <Section index={7}>
-        <HoraOrbitWheel hours={data.horaGrid.hours} />
-      </Section>
+        <CosmicSectionShell meta={SECTION_META.constellation} index={10}>
+          <ConstellationRing factors={data.neoScore.factors} total={data.neoScore.total} />
+        </CosmicSectionShell>
 
-      {/* ── 8. Civilization Cards ── */}
-      {currentHora && (
-        <Section index={8}>
-          <CivilizationCards currentHour={currentHora} />
-        </Section>
-      )}
-
-      {/* ── 9. Numerology + Environmental ── */}
-      <Section index={9}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <NumerologyHarmonics numerology={data.numerology} />
-          <EnvironmentalGauges env={data.environmentalEnergy} />
-        </div>
-      </Section>
-
-      {/* ── 10. Next Hora Countdown ── */}
-      <Section index={10}>
-        <NextHoraCountdown nextHour={nextHour} />
-      </Section>
-
-      {/* ── 11. Constellation Ring ── */}
-      <Section index={11}>
-        <ConstellationRing factors={data.neoScore.factors} total={data.neoScore.total} />
-      </Section>
+      </CosmicZoneAccordion>
 
     </div>
   );
