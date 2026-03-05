@@ -23,6 +23,7 @@ import PlanetaryCommandCenter from './PlanetaryCommandCenter';
 // UX overhaul primitives
 import CosmicZoneAccordion from './shared/CosmicZoneAccordion';
 import CosmicSectionShell from './shared/CosmicSectionShell';
+import CosmicConstellationBg from './shared/CosmicConstellationBg';
 import { SECTION_META } from './config/sectionMeta';
 
 export default function CosmicTimingDashboard() {
@@ -119,7 +120,8 @@ export default function CosmicTimingDashboard() {
   const currentHora = data.horaGrid.hours[currentHoraIndex >= 0 ? currentHoraIndex : 0];
 
   return (
-    <div className="space-y-6 pb-10">
+    <div className="relative space-y-6 pb-10">
+      <CosmicConstellationBg density="sparse" animated />
 
       {/* ═══════════════ NOW ZONE ═══════════════ */}
       <CosmicZoneAccordion zone="NOW">
