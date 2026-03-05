@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import type { NumerologyProfile } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props { numerology: NumerologyProfile }
 
@@ -40,19 +42,34 @@ export default function NumerologyHarmonics({ numerology }: Props) {
       <div className="flex items-center justify-between mb-4">
         <p className="text-xs text-gray-500 uppercase tracking-widest font-medium">Numerology Harmonics</p>
         {isAlignmentDay && (
-          <motion.span
-            className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 font-bold"
-            animate={{ opacity: [1, 0.5, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            ✦ Alignment Day
-          </motion.span>
+          <div className="flex items-center gap-1">
+            <motion.span
+              className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/20 border border-yellow-500/40 text-yellow-300 font-bold"
+              animate={{ opacity: [1, 0.5, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+            >
+              ✦ Alignment Day
+            </motion.span>
+            <CosmicInfoTooltip label="About alignment day">
+              <p>{COSMIC_TOOLTIPS.alignmentDay.text}</p>
+            </CosmicInfoTooltip>
+          </div>
         )}
       </div>
 
       <div className="grid grid-cols-4 gap-2">
-        <MicroDial label="Personal" value={personalDay} color={isAlignmentDay ? '#FFD97A' : '#8B7AFF'} />
-        <MicroDial label="Universal" value={universalDay} color="#5DD8FF" />
+        <div className="flex flex-col items-center">
+          <MicroDial label="Personal" value={personalDay} color={isAlignmentDay ? '#FFD97A' : '#8B7AFF'} />
+          <CosmicInfoTooltip label="About personal day">
+            <p>{COSMIC_TOOLTIPS.personalDay.text}</p>
+          </CosmicInfoTooltip>
+        </div>
+        <div className="flex flex-col items-center">
+          <MicroDial label="Universal" value={universalDay} color="#5DD8FF" />
+          <CosmicInfoTooltip label="About universal day">
+            <p>{COSMIC_TOOLTIPS.universalDay.text}</p>
+          </CosmicInfoTooltip>
+        </div>
         <MicroDial label="Year" value={personalYear} color="#A855F7" />
         <MicroDial label="Month" value={personalMonth} color="#22C55E" />
       </div>

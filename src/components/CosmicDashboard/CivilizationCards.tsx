@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import type { HoraGridHour } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props { currentHour: HoraGridHour }
 
@@ -8,6 +10,7 @@ const CIVILIZATIONS = [
     key: 'vedic',
     name: 'Vedic',
     subname: 'Jyotish',
+    tooltipKey: 'civVedic' as const,
     image: '/images/ai-generated/cosmic-vedic-bg.png',
     gradient: 'from-indigo-950/90 to-purple-950/90',
     border: 'border-indigo-500/30',
@@ -23,6 +26,7 @@ const CIVILIZATIONS = [
     key: 'babylonian',
     name: 'Babylonian',
     subname: 'Chaldean',
+    tooltipKey: 'civBabylonian' as const,
     image: '/images/ai-generated/cosmic-babylonian-bg.png',
     gradient: 'from-amber-950/90 to-orange-950/90',
     border: 'border-amber-500/30',
@@ -40,6 +44,7 @@ const CIVILIZATIONS = [
     key: 'egyptian',
     name: 'Egyptian',
     subname: 'Decan System',
+    tooltipKey: 'civEgyptian' as const,
     image: '/images/ai-generated/cosmic-egyptian-bg.png',
     gradient: 'from-yellow-950/90 to-teal-950/90',
     border: 'border-yellow-500/30',
@@ -57,6 +62,7 @@ const CIVILIZATIONS = [
     key: 'chinese',
     name: 'Chinese',
     subname: 'Shi Chen',
+    tooltipKey: 'civChinese' as const,
     image: '/images/ai-generated/cosmic-chinese-bg.png',
     gradient: 'from-red-950/90 to-emerald-950/90',
     border: 'border-red-500/30',
@@ -106,12 +112,22 @@ export default function CivilizationCards({ currentHour }: Props) {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <span className="text-xl">{civ.glyph}</span>
-                  <p className="text-white font-bold text-sm mt-1">{civ.name}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <p className="text-white font-bold text-sm">{civ.name}</p>
+                    <CosmicInfoTooltip label={`About ${civ.name}`}>
+                      <p>{COSMIC_TOOLTIPS[civ.tooltipKey].text}</p>
+                    </CosmicInfoTooltip>
+                  </div>
                   <p className="text-gray-400 text-[11px]">{civ.subname}</p>
                 </div>
-                <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-bold uppercase ${STATUS_STYLES[status]}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
-                  {status}
+                <div className="flex items-center gap-1">
+                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-bold uppercase ${STATUS_STYLES[status]}`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
+                    {status}
+                  </div>
+                  <CosmicInfoTooltip label="About status badge">
+                    <p>{COSMIC_TOOLTIPS.civStatusBadge.text}</p>
+                  </CosmicInfoTooltip>
                 </div>
               </div>
 

@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import type { PlanetaryHour } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props { nextHour: PlanetaryHour }
 
@@ -69,15 +71,20 @@ export default function NextHoraCountdown({ nextHour }: Props) {
       </div>
 
       {(isAlly || isEnemy) && (
-        <motion.div
-          className={`mt-3 px-3 py-1 rounded-full border text-xs font-bold uppercase ${
-            isAlly ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400' : 'border-red-500/40 bg-red-500/10 text-red-400'
-          }`}
-          animate={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          {isAlly ? '✦ Ally Hour Incoming' : '⚠ Enemy Hour Incoming'}
-        </motion.div>
+        <div className="flex items-center gap-1 mt-3">
+          <motion.div
+            className={`px-3 py-1 rounded-full border text-xs font-bold uppercase ${
+              isAlly ? 'border-cyan-500/40 bg-cyan-500/10 text-cyan-400' : 'border-red-500/40 bg-red-500/10 text-red-400'
+            }`}
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            {isAlly ? '✦ Ally Hour Incoming' : '⚠ Enemy Hour Incoming'}
+          </motion.div>
+          <CosmicInfoTooltip label="About next hora status">
+            <p>{COSMIC_TOOLTIPS.nextHoraStatus.text}</p>
+          </CosmicInfoTooltip>
+        </div>
       )}
 
       <div className="mt-3 flex items-center gap-2 text-sm text-gray-400">

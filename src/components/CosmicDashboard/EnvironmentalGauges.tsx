@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import type { EnvironmentalEnergy } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props { env: EnvironmentalEnergy }
 
@@ -43,17 +45,32 @@ export default function EnvironmentalGauges({ env }: Props) {
       <p className="text-xs text-gray-500 uppercase tracking-widest mb-4 font-medium">Environmental Energy</p>
 
       <div className="flex items-center gap-4 mb-4">
-        <KIndexMeter value={env.kIndex} />
+        <div className="flex flex-col items-center gap-1">
+          <KIndexMeter value={env.kIndex} />
+          <CosmicInfoTooltip label="About K-Index">
+            <p>{COSMIC_TOOLTIPS.kIndex.text}</p>
+          </CosmicInfoTooltip>
+        </div>
         <div className="flex-1 space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-gray-400 text-xs">Schumann</span>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-400 text-xs">Schumann</span>
+              <CosmicInfoTooltip label="About Schumann resonance">
+                <p>{COSMIC_TOOLTIPS.schumann.text}</p>
+              </CosmicInfoTooltip>
+            </div>
             <span className="font-semibold text-xs px-2 py-0.5 rounded-full border"
               style={{ color: schumannColor, borderColor: schumannColor + '40', background: schumannColor + '15' }}>
               {env.schumannResonance.toUpperCase()}
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400 text-xs">Solar Flare</span>
+            <div className="flex items-center gap-1">
+              <span className="text-gray-400 text-xs">Solar Flare</span>
+              <CosmicInfoTooltip label="About solar flares">
+                <p>{COSMIC_TOOLTIPS.solarFlare.text}</p>
+              </CosmicInfoTooltip>
+            </div>
             <span className={`font-semibold text-xs ${env.solarFlareActive ? 'text-red-400' : 'text-emerald-400'}`}>
               {env.solarFlareActive ? `⚡ ${env.solarFlareClass ?? 'Active'}` : '✓ Quiet'}
             </span>
