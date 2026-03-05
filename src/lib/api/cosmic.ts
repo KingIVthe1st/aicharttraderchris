@@ -1,5 +1,5 @@
 import apiClient from "../api-client";
-import type { CosmicIntelligence, NEOScore, HoraGrid, SoulBlueprint } from "@/types/cosmic";
+import type { CosmicIntelligence, NEOScore, HoraGrid, SoulBlueprint, WeeklyCalendarDay } from "@/types/cosmic";
 
 export const cosmicApi = {
   async getDaily(timezone?: string): Promise<CosmicIntelligence> {
@@ -26,6 +26,15 @@ export const cosmicApi = {
       return response.data.blueprint ?? null;
     } catch {
       return null;
+    }
+  },
+
+  async getWeeklyCalendar(days = 35, timezone = 'America/New_York'): Promise<WeeklyCalendarDay[]> {
+    try {
+      const response = await apiClient.get(`/cosmic/weekly?days=${days}&timezone=${encodeURIComponent(timezone)}`);
+      return response.data.calendar ?? [];
+    } catch {
+      return [];
     }
   },
 };

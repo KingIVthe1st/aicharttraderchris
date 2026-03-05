@@ -194,3 +194,13 @@ export function getNodeColorClass(nodeType: NodeType): string {
     case 'U_NODE': return 'bg-gray-500/20 text-gray-300 border-gray-500/40';
   }
 }
+
+export interface WeeklyCalendarDay {
+  date: string;           // "2026-03-04"
+  dayRuler: string;       // "Moon", "Mars", etc.
+  moonPhaseName: string;  // "Waxing Gibbous"
+  moonIllumination: number; // 0-1
+  moonSign: string;       // "Taurus"
+  nodeType: string;       // "ULTRA_ALIGNED", "MIXED", etc.
+  score: number;          // 0-100
+}
