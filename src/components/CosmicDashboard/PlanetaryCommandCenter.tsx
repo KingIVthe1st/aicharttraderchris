@@ -1,9 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import type { PlanetaryHourMap, Planet } from '@/types/cosmic';
 import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import CosmicGlassCard from './shared/CosmicGlassCard';
+import CosmicStatusOrb from './shared/CosmicStatusOrb';
+import CosmicDataRow from './shared/CosmicDataRow';
 import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 import { useInteractiveSelection } from './hooks/useInteractiveSelection';
+import { useAnimationFrame } from './hooks/useAnimationFrame';
 
 interface Props {
   planetaryHours: PlanetaryHourMap;
@@ -17,7 +21,7 @@ const DAY_START_IDX: Record<string, number> = {
 };
 
 const PLANET_GLYPHS: Record<string, string> = {
-  Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿', Jupiter: '♃', Venus: '♀', Saturn: '♄',
+  Sun: '\u2609', Moon: '\u263D', Mars: '\u2642', Mercury: '\u263F', Jupiter: '\u2643', Venus: '\u2640', Saturn: '\u2644',
 };
 const PLANET_COLORS: Record<string, string> = {
   Sun: '#F6C453', Moon: '#5DD8FF', Mars: '#EF4444',
@@ -35,7 +39,7 @@ const PLANET_RELATIONSHIPS: Record<string, { friends: string[]; enemies: string[
 };
 
 const DAY_WISDOM: Record<string, string> = {
-  Sun:     'Solar confidence amplifies bold moves. Quality over quantity — favor market leaders.',
+  Sun:     'Solar confidence amplifies bold moves. Quality over quantity \u2014 favor market leaders.',
   Moon:    'Sentiment rules today. Follow institutional order flow, not crowd emotion.',
   Mars:    'Energy is high but patience is thin. Set tight stops. Fast entries, faster exits.',
   Mercury: 'News and data dominate price action. Trade the catalyst, not the narrative.',
@@ -68,14 +72,50 @@ function getHourRelationship(hourPlanet: string, rulerPlanet: string): 'ally' | 
   return 'neutral';
 }
 
+/* ─── CSS keyframes injected once ─────────────────────────────────────────── */
+const STYLE_ID = 'pcc-keyframes';
+if (typeof document !== 'undefined' && !document.getElementById(STYLE_ID)) {
+  const style = document.createElement('style');
+  style.id = STYLE_ID;
+  style.textContent = `
+    @keyframes pcc-orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pcc-orbit-spin-rev { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+    @keyframes pcc-ally-breathe { 0%,100% { opacity: 0.55; } 50% { opacity: 0.85; } }
+  `;
+  document.head.appendChild(style);
+}
+
+const WEDGE_REL_FILLS: Record<string, string> = {
+  ally:    'rgba(46,197,255,0.25)',
+  enemy:   'rgba(220,38,38,0.2)',
+  neutral: 'rgba(100,116,139,0.15)',
+  self:    'rgba(246,196,83,0.3)',
+};
+
+const WEDGE_ACCENT: Record<string, string> = {
+  ally: '#2EC5FF', enemy: '#EF4444', neutral: '#64748B', self: '#F6C453',
+};
+
+const REL_TO_STATUS: Record<string, 'positive' | 'neutral' | 'negative' | 'special'> = {
+  ally: 'positive', enemy: 'negative', neutral: 'neutral', self: 'special',
+};
+
+const REL_LABELS: Record<string, string> = {
+  ally: 'ALLY HOUR', enemy: 'ENEMY HOUR', neutral: 'NEUTRAL HOUR', self: 'YOUR RULER',
+};
+
 export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler }: Props) {
   const [nowMs, setNowMs] = useState(() => Date.now());
   const { active, getHandlers } = useInteractiveSelection<number>();
 
-  useEffect(() => {
-    const id = setInterval(() => setNowMs(Date.now()), 60000);
-    return () => clearInterval(id);
+  // Replace setInterval with useAnimationFrame (throttled to ~1s updates)
+  const updateNow = useCallback((elapsed: number) => {
+    // Only update state every ~1000ms to avoid excessive re-renders
+    if (elapsed === 0 || Math.floor(elapsed / 1000) !== Math.floor((elapsed - 16) / 1000)) {
+      setNowMs(Date.now());
+    }
   }, []);
+  useAnimationFrame(updateNow);
 
   // Compute all 24 planetary hours from dayRuler + sunrise/sunset
   const allHours = useMemo(() => {
@@ -118,7 +158,7 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
   // Ally/enemy/neutral counts
   const counts = allHours.reduce(
     (acc, h) => { acc[getHourRelationship(h.planet, planetaryRuler)]++; return acc; },
-    { ally: 0, enemy: 0, neutral: 0, self: 0 } as Record<string, number>
+    { ally: 0, enemy: 0, neutral: 0, self: 0 } as Record<string, number>,
   );
 
   // Next ally hour
@@ -126,20 +166,18 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
   const msToNextAlly = nextAllyHour ? nextAllyHour.startMs - nowMs : null;
   const nextAllyStr = msToNextAlly != null && msToNextAlly > 0
     ? `${Math.floor(msToNextAlly / 3600000)}h ${Math.floor((msToNextAlly % 3600000) / 60000)}m`
-    : '—';
+    : '\u2014';
 
-  // Best upcoming hours (top 4)
+  // Best upcoming hours (top 5)
   const upcomingBest = allHours
     .filter((h, i) => i >= currentIdx && ['ally', 'self'].includes(getHourRelationship(h.planet, planetaryRuler)))
-    .slice(0, 4);
+    .slice(0, 5);
 
   const currentRel = getHourRelationship(currentPlanet, planetaryRuler);
 
-  const WEDGE_COLORS: Record<string, string> = { ally: '#2EC5FF', enemy: '#EF4444', neutral: '#374151', self: '#F6C453' };
-  const WEDGE_BG: Record<string, string> = { ally: 'rgba(46,197,255,0.25)', enemy: 'rgba(239,68,68,0.2)', neutral: 'rgba(55,65,81,0.3)', self: 'rgba(246,196,83,0.3)' };
-
-  const cx = 200, cy = 200;
-  const outerR = 175, midR = 140;
+  // SVG parameters — 480x480
+  const cx = 240, cy = 240;
+  const outerR = 215, midR = 160, innerRimR = 155;
   const wedgeDeg = 360 / 24;
 
   // When a wedge is hovered/selected, show its details in the tactical panel
@@ -155,195 +193,287 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
     displayRel === 'self' ? COSMIC_TOOLTIPS.selfHour :
     COSMIC_TOOLTIPS.neutralHour;
 
+  const isAllyNow = currentRel === 'ally' || currentRel === 'self';
+
+  // Tick marks around the outer rim
+  const ticks = Array.from({ length: 24 }, (_, i) => {
+    const deg = i * 15;
+    const p1 = polarToXY(cx, cy, outerR + 4, deg);
+    const p2 = polarToXY(cx, cy, outerR + 10, deg);
+    return { x1: p1.x, y1: p1.y, x2: p2.x, y2: p2.y };
+  });
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay: 0.15 }}
-      className="rounded-2xl border border-amber-500/20 overflow-hidden relative"
-    >
-      {/* Background */}
-      <div className="absolute inset-0 bg-cover bg-center opacity-[0.12]" style={{ backgroundImage: 'url(/images/ai-generated/cosmic-day-ruler-bg.png)' }} />
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-950/95 via-cosmic-900/95 to-indigo-950/95" />
+    <CosmicGlassCard variant="elevated" accentColor="amber" glowIntensity="medium" noPadding>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.15 }}
+        className="relative overflow-hidden"
+      >
+        {/* Background */}
+        <div className="absolute inset-0 bg-cover bg-center opacity-[0.08]" style={{ backgroundImage: 'url(/images/ai-generated/cosmic-day-ruler-bg.png)' }} />
+        <div className="absolute inset-0 bg-gradient-to-br from-amber-950/60 via-cosmic-900/60 to-indigo-950/60" />
 
-      <div className="relative z-10 p-5">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-lg">🌐</span>
-          <h3 className="text-white font-bold text-sm uppercase tracking-widest">Planetary Command Center</h3>
-          <div className="ml-auto flex items-center gap-1.5 px-2 py-1 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[10px] font-bold">
-            {PLANET_GLYPHS[planetaryHours.dayRuler]} {planetaryHours.dayRuler} Day
-            <CosmicInfoTooltip label="Day ruler info">{COSMIC_TOOLTIPS.dayRuler.text}</CosmicInfoTooltip>
+        <div className="relative z-10 p-5">
+          {/* Header */}
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-lg opacity-80">{PLANET_GLYPHS[planetaryHours.dayRuler]}</span>
+            <h3 className="text-white font-bold text-sm uppercase tracking-widest">Day Ruler Command Deck</h3>
+            <div className="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-[10px] font-bold">
+              {PLANET_GLYPHS[planetaryHours.dayRuler]} {planetaryHours.dayRuler} Day
+              <CosmicInfoTooltip label="Day ruler info">{COSMIC_TOOLTIPS.dayRuler.text}</CosmicInfoTooltip>
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-col lg:flex-row gap-5">
-          {/* ── Left: 24-Hour Command Wheel ── */}
-          <div className="flex-1 flex justify-center">
-            <svg viewBox="0 0 400 400" className="w-full max-w-xs sm:max-w-sm">
-              <defs>
-                <filter id="cmdAllyGlow">
-                  <feGaussianBlur stdDeviation="3" result="b"/>
-                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-                <filter id="cmdEnemyGlow">
-                  <feGaussianBlur stdDeviation="2" result="b"/>
-                  <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-                </filter>
-              </defs>
+          <div className="flex flex-col lg:flex-row gap-5">
+            {/* ── Left 60%: Command Wheel (SVG 480x480) ── */}
+            <div className="lg:w-[60%] flex justify-center">
+              <svg viewBox="0 0 480 480" className="w-full max-w-[480px]">
+                <defs>
+                  <filter id="beam-glow">
+                    <feGaussianBlur stdDeviation="3" result="b" />
+                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="wedge-ally-glow">
+                    <feGaussianBlur stdDeviation="3" result="b" />
+                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="wedge-enemy-glow">
+                    <feGaussianBlur stdDeviation="2" result="b" />
+                    <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                </defs>
 
-              {/* Wedges */}
-              {allHours.map((h, i) => {
-                const startDeg = i * wedgeDeg;
-                const endDeg = startDeg + wedgeDeg;
-                const midDeg = startDeg + wedgeDeg / 2;
-                const rel = getHourRelationship(h.planet, planetaryRuler);
-                const isCurrent = i === currentIdx;
-                const isPast = i < currentIdx;
-                const color = WEDGE_COLORS[rel];
-                const bg = WEDGE_BG[rel];
-                const labelPos = polarToXY(cx, cy, (outerR + midR) / 2, midDeg);
+                {/* Outer rim circle */}
+                <circle cx={cx} cy={cy} r={outerR + 12} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
 
-                const isActive = active === i;
+                {/* 24 tick marks */}
+                {ticks.map((t, i) => (
+                  <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2} stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+                ))}
 
-                return (
-                  <g key={i} {...getHandlers(i)} className="cursor-pointer" style={{ outline: 'none' }}>
-                    <motion.path
-                      d={wedgePath(cx, cy, midR, outerR, startDeg, endDeg)}
-                      fill={isCurrent || isActive ? color : bg}
-                      stroke={color}
-                      strokeWidth={isCurrent || isActive ? 2 : 0.5}
-                      opacity={isPast && !isActive ? 0.3 : 1}
-                      filter={rel === 'ally' && !isPast ? 'url(#cmdAllyGlow)' : rel === 'enemy' && !isPast ? 'url(#cmdEnemyGlow)' : undefined}
-                      animate={isCurrent && !isActive ? { opacity: [1, 0.7, 1] } : undefined}
-                      transition={isCurrent && !isActive ? { duration: 1.5, repeat: Infinity } : undefined}
+                {/* Wedges — multi-layer */}
+                {allHours.map((h, i) => {
+                  const startDeg = i * wedgeDeg;
+                  const endDeg = startDeg + wedgeDeg;
+                  const midDeg = startDeg + wedgeDeg / 2;
+                  const rel = getHourRelationship(h.planet, planetaryRuler);
+                  const isCurrent = i === currentIdx;
+                  const isPast = i < currentIdx;
+                  const isActive = active === i;
+                  const isUpcomingAlly = !isPast && !isCurrent && (rel === 'ally' || rel === 'self');
+                  const accent = WEDGE_ACCENT[rel];
+                  const relFill = WEDGE_REL_FILLS[rel];
+                  const labelPos = polarToXY(cx, cy, (outerR + midR) / 2, midDeg);
+
+                  const basePath = wedgePath(cx, cy, midR, outerR, startDeg, endDeg);
+
+                  return (
+                    <g key={i} {...getHandlers(i)} className="cursor-pointer" style={{ outline: 'none' }}>
+                      {/* Base fill layer */}
+                      <path
+                        d={basePath}
+                        fill="rgba(255,255,255,0.02)"
+                      />
+                      {/* Color layer */}
+                      <motion.path
+                        d={basePath}
+                        fill={isCurrent || isActive ? accent : relFill}
+                        stroke={accent}
+                        strokeWidth={isCurrent || isActive ? 2 : 0.5}
+                        opacity={isPast && !isActive ? 0.3 : 1}
+                        filter={
+                          rel === 'ally' && !isPast ? 'url(#wedge-ally-glow)' :
+                          rel === 'enemy' && !isPast ? 'url(#wedge-enemy-glow)' :
+                          undefined
+                        }
+                        animate={
+                          isCurrent && !isActive
+                            ? { opacity: [1, 0.7, 1] }
+                            : undefined
+                        }
+                        transition={
+                          isCurrent && !isActive
+                            ? { duration: 1.5, repeat: Infinity }
+                            : undefined
+                        }
+                        style={
+                          isUpcomingAlly && !isActive
+                            ? { animation: 'pcc-ally-breathe 3s ease-in-out infinite' }
+                            : undefined
+                        }
+                      />
+                      {/* Planet glyph label */}
+                      <text
+                        x={labelPos.x} y={labelPos.y}
+                        textAnchor="middle" dominantBaseline="middle"
+                        fontSize="10"
+                        fill={isPast && !isActive ? '#475569' : accent}
+                        opacity={isPast && !isActive ? 0.5 : 0.9}
+                        fontWeight="bold"
+                      >
+                        {PLANET_GLYPHS[h.planet]}
+                      </text>
+                    </g>
+                  );
+                })}
+
+                {/* Inner ring divider */}
+                <circle cx={cx} cy={cy} r={innerRimR} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+
+                {/* Current hour beam line from center */}
+                {currentIdx >= 0 && (() => {
+                  const beamDeg = currentIdx * wedgeDeg + wedgeDeg / 2;
+                  const beamEnd = polarToXY(cx, cy, outerR - 5, beamDeg);
+                  return (
+                    <motion.line
+                      x1={cx} y1={cy} x2={beamEnd.x} y2={beamEnd.y}
+                      stroke="white" strokeWidth="1.5"
+                      filter="url(#beam-glow)"
+                      animate={{ strokeOpacity: [0.7, 0.2, 0.7] }}
+                      transition={{ duration: 2, repeat: Infinity }}
                     />
-                    {/* Planet glyph label */}
-                    <text
-                      x={labelPos.x} y={labelPos.y}
-                      textAnchor="middle" dominantBaseline="middle"
-                      fontSize="9"
-                      fill={isPast && !isActive ? '#374151' : color}
-                      opacity={isPast && !isActive ? 0.5 : 0.85}
-                    >
-                      {PLANET_GLYPHS[h.planet]}
-                    </text>
-                  </g>
-                );
-              })}
+                  );
+                })()}
 
-              {/* Inner ring */}
-              <circle cx={cx} cy={cy} r={midR} fill="none" stroke="#1e293b" strokeWidth="1" />
-              <circle cx={cx} cy={cy} r={60} fill="#0a0f1e" stroke="#1e293b" strokeWidth="1" />
+                {/* Center glass circle */}
+                <circle cx={cx} cy={cy} r={68} fill="rgba(4,5,13,0.95)" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
 
-              {/* Current hour beam */}
-              {currentIdx >= 0 && (() => {
-                const beamDeg = currentIdx * wedgeDeg + wedgeDeg / 2;
-                const beamEnd = polarToXY(cx, cy, outerR - 5, beamDeg);
-                return (
-                  <motion.line
-                    x1={cx} y1={cy} x2={beamEnd.x} y2={beamEnd.y}
-                    stroke="white" strokeWidth="1.5" strokeOpacity="0.6"
-                    animate={{ strokeOpacity: [0.6, 0.2, 0.6] }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                {/* Orbital circles (CSS spin) */}
+                <g style={{ transformOrigin: `${cx}px ${cy}px`, animation: 'pcc-orbit-spin 30s linear infinite' }}>
+                  <circle cx={cx + 52} cy={cy} r="3" fill="rgba(246,196,83,0.4)" />
+                </g>
+                <g style={{ transformOrigin: `${cx}px ${cy}px`, animation: 'pcc-orbit-spin-rev 45s linear infinite' }}>
+                  <circle cx={cx} cy={cy + 58} r="2.5" fill="rgba(46,197,255,0.35)" />
+                </g>
+
+                {/* Center: day ruler sigil + name */}
+                <text x={cx} y={cy - 14} textAnchor="middle" fontSize="34" fill={PLANET_COLORS[planetaryHours.dayRuler]} fontWeight="bold">
+                  {PLANET_GLYPHS[planetaryHours.dayRuler]}
+                </text>
+                <text x={cx} y={cy + 10} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" letterSpacing="0.15em">
+                  {planetaryHours.dayRuler.toUpperCase()}
+                </text>
+                <text x={cx} y={cy + 24} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" letterSpacing="0.2em">
+                  DAY RULER
+                </text>
+              </svg>
+            </div>
+
+            {/* ── Right 40%: Tactical Panel ── */}
+            <div className="lg:w-[40%] flex flex-col gap-3">
+              {/* Current status orb + details */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
+                <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-2">
+                  {active !== null ? 'Selected Hour' : 'Current Hour'}
+                </p>
+                <div className="flex items-center gap-3 mb-2">
+                  <CosmicStatusOrb
+                    size="lg"
+                    status={REL_TO_STATUS[displayRel]}
+                    pulse
+                    label={REL_LABELS[displayRel]}
                   />
-                );
-              })()}
-
-              {/* Center: day ruler */}
-              <text x={cx} y={cy - 12} textAnchor="middle" fontSize="28" fill={PLANET_COLORS[planetaryHours.dayRuler]}>
-                {PLANET_GLYPHS[planetaryHours.dayRuler]}
-              </text>
-              <text x={cx} y={cy + 10} textAnchor="middle" fill="white" fontSize="9" fontWeight="bold">
-                {planetaryHours.dayRuler.toUpperCase()}
-              </text>
-              <text x={cx} y={cy + 22} textAnchor="middle" fill="#6b7280" fontSize="8">DAY</text>
-            </svg>
-          </div>
-
-          {/* ── Right: Tactical Panel ── */}
-          <div className="w-full lg:w-56 flex flex-col gap-3">
-            {/* Current hour status */}
-            <div className={`rounded-xl border p-3 text-center ${
-              displayRel === 'ally' ? 'border-cyan-500/40 bg-cyan-500/10' :
-              displayRel === 'enemy' ? 'border-red-500/40 bg-red-500/10' :
-              displayRel === 'self' ? 'border-yellow-500/40 bg-yellow-500/10' :
-              'border-gray-500/30 bg-gray-500/10'
-            }`}>
-              <p className="text-gray-400 text-[9px] uppercase mb-1">
-                {active !== null ? 'Selected Hour' : 'Current Hour'}
-              </p>
-              <p className="text-2xl">{PLANET_GLYPHS[displayPlanet]}</p>
-              <p className="text-white font-bold text-xs">{displayPlanet}</p>
-              <div className="flex items-center justify-center gap-1 mt-1">
-                <p className={`text-[10px] font-black uppercase ${
-                  displayRel === 'ally' ? 'text-cyan-400' :
-                  displayRel === 'enemy' ? 'text-red-400' :
-                  displayRel === 'self' ? 'text-yellow-400' :
-                  'text-gray-400'
-                }`}>
-                  {displayRel === 'self' ? '★ YOUR RULER' : displayRel.toUpperCase()}
-                </p>
-                <CosmicInfoTooltip label="Hour status info" topic={hourStatusTooltip.topic}>{hourStatusTooltip.text}</CosmicInfoTooltip>
-              </div>
-            </div>
-
-            {/* Next ally countdown */}
-            <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3">
-              <p className="text-gray-400 text-[9px] uppercase mb-1 flex items-center gap-1">
-                Next Ally Hour
-                <CosmicInfoTooltip label="Next ally hour info">{COSMIC_TOOLTIPS.nextAllyCountdown.text}</CosmicInfoTooltip>
-              </p>
-              <p className="text-emerald-300 font-mono font-bold text-xl">{nextAllyStr}</p>
-              {nextAllyHour && (
-                <p className="text-gray-400 text-[10px] mt-0.5">
-                  {PLANET_GLYPHS[nextAllyHour.planet]} {new Date(nextAllyHour.startMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                </p>
-              )}
-            </div>
-
-            {/* Day summary */}
-            <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-              <p className="text-gray-400 text-[9px] uppercase mb-2">Today's Breakdown</p>
-              <div className="flex gap-3 text-center">
-                <div><p className="text-cyan-300 font-bold text-sm">{(counts.ally ?? 0) + (counts.self ?? 0)}</p><p className="text-[9px] text-gray-500">Ally</p></div>
-                <div><p className="text-gray-400 font-bold text-sm">{counts.neutral ?? 0}</p><p className="text-[9px] text-gray-500">Neutral</p></div>
-                <div><p className="text-red-400 font-bold text-sm">{counts.enemy ?? 0}</p><p className="text-[9px] text-gray-500">Enemy</p></div>
-              </div>
-            </div>
-
-            {/* Best upcoming hours */}
-            {upcomingBest.length > 0 && (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-3">
-                <p className="text-gray-400 text-[9px] uppercase mb-2">Best Hours Today</p>
-                <div className="space-y-1.5">
-                  {upcomingBest.map((h, i) => (
-                    <div key={i} className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[13px]" style={{ color: PLANET_COLORS[h.planet] }}>{PLANET_GLYPHS[h.planet]}</span>
-                        <span className="text-white text-[10px] font-medium">{h.planet}</span>
-                      </div>
-                      <span className="text-gray-400 text-[9px] font-mono">
-                        {new Date(h.startMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-                      </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-2xl" style={{ color: PLANET_COLORS[displayPlanet] }}>{PLANET_GLYPHS[displayPlanet]}</span>
+                  <div>
+                    <p className="text-white font-bold text-sm">{displayPlanet}</p>
+                    <div className="flex items-center gap-1">
+                      <p className={`text-[10px] font-black uppercase ${
+                        displayRel === 'ally' ? 'text-cyan-400' :
+                        displayRel === 'enemy' ? 'text-red-400' :
+                        displayRel === 'self' ? 'text-yellow-400' :
+                        'text-gray-400'
+                      }`}>
+                        {displayRel === 'self' ? 'YOUR RULER' : displayRel.toUpperCase()}
+                      </p>
+                      <CosmicInfoTooltip label="Hour status info" topic={hourStatusTooltip.topic}>{hourStatusTooltip.text}</CosmicInfoTooltip>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
-            )}
 
-            {/* Day wisdom */}
-            <div className="rounded-xl border border-amber-500/20 bg-amber-950/30 p-3">
-              <p className="text-amber-400 text-[9px] uppercase mb-1 font-bold flex items-center gap-1">
-                Day Wisdom
-                <CosmicInfoTooltip label="Day wisdom info">{COSMIC_TOOLTIPS.dayWisdom.text}</CosmicInfoTooltip>
-              </p>
-              <p className="text-gray-300 text-[10px] leading-relaxed italic">
-                {DAY_WISDOM[planetaryHours.dayRuler] || ''}
-              </p>
+              {/* Countdown to next ally */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
+                <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-1 flex items-center gap-1">
+                  Next Ally Hour
+                  <CosmicInfoTooltip label="Next ally hour info">{COSMIC_TOOLTIPS.nextAllyCountdown.text}</CosmicInfoTooltip>
+                </p>
+                <p className={`text-3xl font-mono font-black tabular-nums ${isAllyNow ? 'text-cyan-300' : 'text-white'}`}
+                  style={isAllyNow ? { textShadow: '0 0 20px rgba(46,197,255,0.4), 0 0 40px rgba(46,197,255,0.15)' } : undefined}
+                >
+                  {nextAllyStr}
+                </p>
+                {nextAllyHour && (
+                  <p className="text-gray-500 text-[10px] mt-1 font-mono">
+                    {PLANET_GLYPHS[nextAllyHour.planet]} {new Date(nextAllyHour.startMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                  </p>
+                )}
+              </div>
+
+              {/* Hour breakdown: 3 CosmicDataRow entries */}
+              <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
+                <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-1">Hour Breakdown</p>
+                <CosmicDataRow
+                  label="Ally Hours"
+                  value={(counts.ally ?? 0) + (counts.self ?? 0)}
+                  valueColor="#2EC5FF"
+                  badge={{ text: 'Favorable', variant: 'positive' }}
+                />
+                <CosmicDataRow
+                  label="Neutral Hours"
+                  value={counts.neutral ?? 0}
+                  valueColor="#94A3B8"
+                  badge={{ text: 'Standard', variant: 'neutral' }}
+                />
+                <CosmicDataRow
+                  label="Enemy Hours"
+                  value={counts.enemy ?? 0}
+                  valueColor="#EF4444"
+                  badge={{ text: 'Caution', variant: 'negative' }}
+                  noBorder
+                />
+              </div>
+
+              {/* Best windows — up to 5 glass chips */}
+              {upcomingBest.length > 0 && (
+                <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
+                  <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-2">Best Windows</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {upcomingBest.map((h, i) => (
+                      <div
+                        key={i}
+                        className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 flex items-center gap-1.5"
+                      >
+                        <span className="text-[13px]" style={{ color: PLANET_COLORS[h.planet] }}>{PLANET_GLYPHS[h.planet]}</span>
+                        <span className="text-white text-[10px] font-medium">{h.planet}</span>
+                        <span className="text-gray-500 text-[9px] font-mono">
+                          {new Date(h.startMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Day wisdom in sunken glass card */}
+              <CosmicGlassCard variant="sunken" accentColor="amber" noPadding>
+                <div className="p-3">
+                  <p className="text-amber-400/70 text-[9px] uppercase tracking-widest mb-1 font-bold flex items-center gap-1">
+                    Day Wisdom
+                    <CosmicInfoTooltip label="Day wisdom info">{COSMIC_TOOLTIPS.dayWisdom.text}</CosmicInfoTooltip>
+                  </p>
+                  <p className="text-gray-400 text-[10px] leading-relaxed italic">
+                    {DAY_WISDOM[planetaryHours.dayRuler] || ''}
+                  </p>
+                </div>
+              </CosmicGlassCard>
             </div>
           </div>
         </div>
-      </div>
-    </motion.div>
+      </motion.div>
+    </CosmicGlassCard>
   );
 }
