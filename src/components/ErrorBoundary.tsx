@@ -33,15 +33,25 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    // Log error to console for monitoring
+    // Auto-reload on stale chunk errors (happens after redeployment when old HTML
+    // references JS chunks that no longer exist on the CDN with the same hash)
+    const isChunkLoadError =
+      error.message?.includes('Failed to fetch dynamically imported module') ||
+      error.message?.includes('Loading chunk') ||
+      error.message?.includes('Importing a module script failed');
+    if (isChunkLoadError) {
+      console.warn('[ErrorBoundary] Stale chunk detected, reloading...', error.message);
+      window.location.reload();
+      return;
+    }
+
+    // Log other errors to console for monitoring
     console.error('[ErrorBoundary] Caught error:', {
       error: error.message,
       stack: error.stack,
       componentStack: errorInfo.componentStack,
       timestamp: new Date().toISOString(),
     });
-
-    // You can add Sentry.captureException(error) here when Sentry DSN is configured
   }
 
   render() {

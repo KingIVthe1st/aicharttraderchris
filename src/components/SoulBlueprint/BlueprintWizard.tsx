@@ -78,6 +78,7 @@ export default function BlueprintWizard({
     birthDate: "",
     birthTime: "",
     birthCity: "",
+    birthState: "",
     birthCountry: "",
   });
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -128,11 +129,15 @@ export default function BlueprintWizard({
   };
 
   const handleSubmit = () => {
+    // Combine city + state for more accurate geocoding (e.g. "Peoria, Illinois")
+    const cityWithState = formData.birthState.trim()
+      ? `${formData.birthCity.trim()}, ${formData.birthState.trim()}`
+      : formData.birthCity.trim();
     onSubmit({
       fullName: formData.fullName.trim(),
       birthDate: formData.birthDate,
       birthTime: formData.birthTime,
-      birthCity: formData.birthCity.trim(),
+      birthCity: cityWithState,
       birthCountry: formData.birthCountry,
     });
   };
@@ -263,21 +268,39 @@ export default function BlueprintWizard({
                 If unknown, use 12:00 PM as an approximation.
               </p>
             </div>
-            <div>
-              <label
-                htmlFor="birthCity"
-                className="block text-sm font-medium text-gray-300 mb-2"
-              >
-                Birth City
-              </label>
-              <input
-                id="birthCity"
-                type="text"
-                value={formData.birthCity}
-                onChange={(e) => updateField("birthCity", e.target.value)}
-                placeholder="e.g. New York"
-                className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none transition-colors"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="birthCity"
+                  className="block text-sm font-medium text-gray-300 mb-2"
+                >
+                  Birth City
+                </label>
+                <input
+                  id="birthCity"
+                  type="text"
+                  value={formData.birthCity}
+                  onChange={(e) => updateField("birthCity", e.target.value)}
+                  placeholder="e.g. Peoria"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none transition-colors"
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="birthState"
+                  className="block text-sm font-medium text-gray-300 mb-2"
+                >
+                  State / Province
+                </label>
+                <input
+                  id="birthState"
+                  type="text"
+                  value={formData.birthState}
+                  onChange={(e) => updateField("birthState", e.target.value)}
+                  placeholder="e.g. Illinois"
+                  className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:border-purple-500 focus:ring-1 focus:ring-purple-500 focus:outline-none transition-colors"
+                />
+              </div>
             </div>
             <div>
               <label
@@ -336,7 +359,7 @@ export default function BlueprintWizard({
                   Birth City
                 </p>
                 <p className="text-white font-medium mt-1">
-                  {formData.birthCity}
+                  {formData.birthCity}{formData.birthState ? `, ${formData.birthState}` : ""}
                 </p>
               </div>
               <div className="col-span-2">
