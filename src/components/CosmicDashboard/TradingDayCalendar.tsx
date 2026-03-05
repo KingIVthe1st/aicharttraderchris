@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WeeklyCalendarDay } from '@/types/cosmic';
+import CosmicGlassCard from './shared/CosmicGlassCard';
 import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
 import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 import { useInteractiveSelection } from './hooks/useInteractiveSelection';
@@ -11,7 +12,8 @@ interface Props {
 }
 
 const PLANET_GLYPHS: Record<string, string> = {
-  Sun: '☉', Moon: '☽', Mars: '♂', Mercury: '☿', Jupiter: '♃', Venus: '♀', Saturn: '♄',
+  Sun: '\u2609', Moon: '\u263D', Mars: '\u2642', Mercury: '\u263F',
+  Jupiter: '\u2643', Venus: '\u2640', Saturn: '\u2644',
 };
 
 const DAY_COLORS: Record<string, string> = {
@@ -19,80 +21,106 @@ const DAY_COLORS: Record<string, string> = {
   Mercury: '#A78BFA', Jupiter: '#FB923C', Venus: '#34D399', Saturn: '#94A3B8',
 };
 
-const NODE_STYLE: Record<string, { bg: string; border: string; text: string; label: string }> = {
-  ULTRA_ALIGNED: { bg: 'from-emerald-900/60 to-emerald-950/80', border: 'border-emerald-500/40', text: 'text-emerald-300', label: 'Prime' },
-  HIGH_PRESSURE: { bg: 'from-green-900/50 to-green-950/70', border: 'border-green-500/30', text: 'text-green-300', label: 'Strong' },
-  SOUL_WINDOW:   { bg: 'from-blue-900/50 to-blue-950/70',  border: 'border-blue-500/30',  text: 'text-blue-300',  label: 'Soul' },
-  MIXED:         { bg: 'from-amber-900/40 to-amber-950/60', border: 'border-amber-500/30', text: 'text-amber-300', label: 'Mixed' },
-  CONFLICT:      { bg: 'from-red-900/40 to-red-950/60',    border: 'border-red-500/30',   text: 'text-red-300',   label: 'Caution' },
-  DISRUPTION:    { bg: 'from-purple-900/40 to-purple-950/60', border: 'border-purple-500/30', text: 'text-purple-300', label: 'Disruption' },
-  U_NODE:        { bg: 'from-gray-900/40 to-gray-950/60',  border: 'border-gray-600/30',  text: 'text-gray-400',  label: 'Neutral' },
+const NODE_WASH: Record<string, string> = {
+  ULTRA_ALIGNED:  'rgba(16,185,129,0.08)',
+  HIGH_PRESSURE:  'rgba(34,197,94,0.06)',
+  SOUL_WINDOW:    'rgba(59,130,246,0.06)',
+  MIXED:          'rgba(245,158,11,0.05)',
+  CONFLICT:       'rgba(239,68,68,0.06)',
+  DISRUPTION:     'rgba(168,85,247,0.06)',
+  U_NODE:         'rgba(100,116,139,0.04)',
+};
+
+const NODE_LABEL: Record<string, { text: string; color: string; label: string }> = {
+  ULTRA_ALIGNED:  { text: 'text-emerald-300', color: '#34d399', label: 'Prime' },
+  HIGH_PRESSURE:  { text: 'text-green-300',   color: '#86efac', label: 'Strong' },
+  SOUL_WINDOW:    { text: 'text-blue-300',    color: '#93c5fd', label: 'Soul' },
+  MIXED:          { text: 'text-amber-300',   color: '#fcd34d', label: 'Mixed' },
+  CONFLICT:       { text: 'text-red-300',     color: '#fca5a5', label: 'Caution' },
+  DISRUPTION:     { text: 'text-purple-300',  color: '#c4b5fd', label: 'Disruption' },
+  U_NODE:         { text: 'text-gray-400',    color: '#9ca3af', label: 'Neutral' },
 };
 
 const MOON_ICONS: Record<string, string> = {
-  'New Moon': '🌑', 'Waxing Crescent': '🌒', 'First Quarter': '🌓', 'Waxing Gibbous': '🌔',
-  'Full Moon': '🌕', 'Waning Gibbous': '🌖', 'Last Quarter': '🌗', 'Waning Crescent': '🌘',
+  'New Moon': '\uD83C\uDF11', 'Waxing Crescent': '\uD83C\uDF12',
+  'First Quarter': '\uD83C\uDF13', 'Waxing Gibbous': '\uD83C\uDF14',
+  'Full Moon': '\uD83C\uDF15', 'Waning Gibbous': '\uD83C\uDF16',
+  'Last Quarter': '\uD83C\uDF17', 'Waning Crescent': '\uD83C\uDF18',
 };
 
 const KEY_PHASES = new Set(['New Moon', 'Full Moon', 'First Quarter', 'Last Quarter']);
 const DAY_ABBREVS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+/* ---------- Loading skeleton ---------- */
+function CalendarSkeleton() {
+  return (
+    <CosmicGlassCard accentColor="emerald">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="h-4 w-36 rounded-full bg-white/[0.06] animate-pulse" />
+      </div>
+      <div className="grid grid-cols-7 gap-2">
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="h-24 rounded-xl bg-white/[0.04] animate-pulse" />
+        ))}
+      </div>
+    </CosmicGlassCard>
+  );
+}
+
+/* ---------- Main component ---------- */
 export default function TradingDayCalendar({ calendar, isLoading }: Props) {
   const [showMonth, setShowMonth] = useState(false);
   const { active, getHandlers } = useInteractiveSelection<number>();
   const today = new Date().toISOString().split('T')[0];
 
   const week = calendar.slice(0, 7);
-  const bestDay = week.reduce<WeeklyCalendarDay | null>((best, d) =>
-    !best || d.score > best.score ? d : best, null);
+  const bestDay = useMemo(
+    () => week.reduce<WeeklyCalendarDay | null>((best, d) => (!best || d.score > best.score ? d : best), null),
+    [week],
+  );
 
-  const firstDay = calendar[0] ? new Date(calendar[0].date + 'T12:00:00') : new Date();
-  const startDow = firstDay.getDay();
-  const monthGrid: (WeeklyCalendarDay | null)[] = [
-    ...Array(startDow).fill(null),
-    ...calendar.slice(0, 35),
-  ];
+  const { monthGrid } = useMemo(() => {
+    const firstDay = calendar[0] ? new Date(calendar[0].date + 'T12:00:00') : new Date();
+    const dow = firstDay.getDay();
+    return {
+      monthGrid: [...Array(dow).fill(null), ...calendar.slice(0, 35)] as (WeeklyCalendarDay | null)[],
+    };
+  }, [calendar]);
 
-  if (isLoading) {
-    return (
-      <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-slate-950/90 to-emerald-950/50 p-5 animate-pulse">
-        <div className="h-4 bg-white/10 rounded w-40 mb-4" />
-        <div className="grid grid-cols-7 gap-2">
-          {Array(7).fill(0).map((_, i) => <div key={i} className="h-20 bg-white/5 rounded-xl" />)}
-        </div>
-      </div>
-    );
-  }
+  if (isLoading) return <CalendarSkeleton />;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, delay: 0.2 }}
-      className="relative rounded-2xl border border-emerald-500/20 overflow-hidden"
     >
-      <div className="absolute inset-0 bg-cover bg-center opacity-10" style={{ backgroundImage: 'url(/images/ai-generated/cosmic-trading-calendar-bg.png)' }} />
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-950/95 via-slate-900/95 to-emerald-950/90" />
-
-      <div className="relative z-10 p-5">
+      <CosmicGlassCard accentColor="emerald">
+        {/* ── Header ── */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-lg">📅</span>
-            <h3 className="text-white font-bold text-sm uppercase tracking-widest">Optimum Trading Calendar</h3>
-            <CosmicInfoTooltip label="Calendar quality colors">{COSMIC_TOOLTIPS.calendarPrime.text}</CosmicInfoTooltip>
+            <span className="text-lg">&#x1F4C5;</span>
+            <h3 className="text-white font-bold text-sm uppercase tracking-widest">
+              Cosmic Calendar
+            </h3>
+            <CosmicInfoTooltip label="Calendar quality colors">
+              {COSMIC_TOOLTIPS.calendarPrime.text}
+            </CosmicInfoTooltip>
           </div>
           <div className="flex items-center gap-2">
-            <CosmicInfoTooltip label="Month view info">Expand the full month grid to see day-by-day cosmic quality at a glance. Tap any day for details.</CosmicInfoTooltip>
+            <CosmicInfoTooltip label="Month view info">
+              Expand the full month grid to see day-by-day cosmic quality at a glance. Tap any day for details.
+            </CosmicInfoTooltip>
             <button
               onClick={() => setShowMonth(v => !v)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 text-white text-[11px] font-medium transition-all"
+              className="flex items-center gap-1.5 bg-white/[0.05] border border-white/[0.08] rounded-full px-4 py-1.5 text-white text-[11px] font-medium hover:bg-white/[0.08] transition-all"
             >
-              {showMonth ? '↑ Week View' : '↓ Month View'}
+              {showMonth ? '\u2191 Week View' : '\u2193 Month View'}
             </button>
           </div>
         </div>
 
-        {/* Week strip */}
+        {/* ── Week strip ── */}
         <div className="grid grid-cols-7 gap-2 mb-3">
           {week.map((day, i) => {
             const d = new Date(day.date + 'T12:00:00');
@@ -100,27 +128,58 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
             const dayNum = d.getDate();
             const isToday = day.date === today;
             const isBest = day.date === bestDay?.date;
-            const s = NODE_STYLE[day.nodeType] || NODE_STYLE.U_NODE;
+            const nl = NODE_LABEL[day.nodeType] || NODE_LABEL.U_NODE;
+            const wash = NODE_WASH[day.nodeType] || NODE_WASH.U_NODE;
             const rulerColor = DAY_COLORS[day.dayRuler] || '#fff';
+
             return (
               <motion.div
                 key={day.date}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className={`relative rounded-xl border p-2 flex flex-col items-center bg-gradient-to-b ${s.bg} ${s.border} ${
-                  isToday ? 'ring-2 ring-yellow-400/60 ring-offset-1 ring-offset-transparent' : ''
-                }`}
+                className={`
+                  relative rounded-xl border border-white/[0.06] bg-white/[0.03] p-3
+                  flex flex-col items-center text-center
+                  ${isToday ? 'ring-2 ring-[#F6C453]/50 shadow-[0_0_12px_rgba(246,196,83,0.2)]' : ''}
+                `}
+                style={{
+                  background: `linear-gradient(135deg, ${wash}, transparent)`,
+                }}
               >
-                {isBest && <span className="absolute -top-1 -right-1 text-[10px]">⭐</span>}
-                <span className="text-[9px] text-gray-400 font-bold">{dow}</span>
-                <span className={`text-lg font-black ${isToday ? 'text-yellow-300' : 'text-white'}`}>{dayNum}</span>
-                <span className="text-[14px]" style={{ color: rulerColor }}>{PLANET_GLYPHS[day.dayRuler]}</span>
-                <span className={`text-[8px] font-bold uppercase ${s.text}`}>{s.label}</span>
+                {isBest && (
+                  <span className="absolute -top-1.5 -right-1.5 text-[11px]" title="Best day this week">
+                    &#x2B50;
+                  </span>
+                )}
+
+                {/* Day abbreviation */}
+                <span className="text-[10px] uppercase tracking-widest text-gray-500 font-medium">
+                  {dow}
+                </span>
+
+                {/* Date number */}
+                <span className={`text-lg font-mono font-bold ${isToday ? 'text-[#F6C453]' : 'text-white'}`}>
+                  {dayNum}
+                </span>
+
+                {/* Planet glyph */}
+                <span className="text-[15px] leading-none" style={{ color: rulerColor }}>
+                  {PLANET_GLYPHS[day.dayRuler]}
+                </span>
+
+                {/* Node label */}
+                <span className={`text-[8px] font-bold uppercase mt-0.5 ${nl.text}`}>
+                  {nl.label}
+                </span>
+
+                {/* Moon phase */}
                 <span className="text-[10px] mt-0.5 inline-flex items-center gap-0.5">
                   {MOON_ICONS[day.moonPhaseName] || ''}
                   {KEY_PHASES.has(day.moonPhaseName) && (
-                    <CosmicInfoTooltip label="Moon phase">{COSMIC_TOOLTIPS.calendarMoonIcon.text}</CosmicInfoTooltip>
+                    <CosmicInfoTooltip label="Moon phase">
+                      {COSMIC_TOOLTIPS.calendarMoonIcon.text}
+                    </CosmicInfoTooltip>
                   )}
                 </span>
               </motion.div>
@@ -128,7 +187,7 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
           })}
         </div>
 
-        {/* Month grid */}
+        {/* ── Month grid (expandable) ── */}
         <AnimatePresence>
           {showMonth && (
             <motion.div
@@ -137,57 +196,93 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="border-t border-white/10 pt-4">
+              <div className="border-t border-white/[0.06] pt-4">
+                {/* DOW headers */}
                 <div className="grid grid-cols-7 gap-1 mb-1">
                   {DAY_ABBREVS.map(d => (
-                    <div key={d} className="text-center text-[9px] text-gray-500 font-bold uppercase">{d}</div>
+                    <div key={d} className="text-center text-[9px] text-gray-500 font-bold uppercase tracking-wide">
+                      {d}
+                    </div>
                   ))}
                 </div>
+
+                {/* Day cells */}
                 <div className="grid grid-cols-7 gap-1">
                   {monthGrid.map((day, i) => {
                     if (!day) return <div key={`e-${i}`} className="h-10" />;
-                    const isToday = day.date === today;
+                    const isTodayCell = day.date === today;
                     const dayNum = new Date(day.date + 'T12:00:00').getDate();
-                    const s = NODE_STYLE[day.nodeType] || NODE_STYLE.U_NODE;
+                    const wash = NODE_WASH[day.nodeType] || NODE_WASH.U_NODE;
                     const rulerColor = DAY_COLORS[day.dayRuler] || '#fff';
                     const isKey = KEY_PHASES.has(day.moonPhaseName);
+                    const qualityOpacity = 0.4 + (day.score / 17) * 0.6;
+
                     return (
                       <motion.div
                         key={day.date}
                         initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
+                        animate={{ opacity: qualityOpacity, scale: 1 }}
                         transition={{ delay: i * 0.008 }}
-                        className={`relative h-10 rounded-lg border flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b ${s.bg} ${s.border} ${isToday ? 'ring-1 ring-yellow-400/80' : ''} ${active === i ? 'ring-2 ring-purple-400/70' : ''}`}
+                        className={`
+                          relative h-10 rounded-xl border border-white/[0.06] bg-white/[0.03]
+                          flex flex-col items-center justify-center cursor-pointer
+                          ${isTodayCell ? 'ring-2 ring-[#F6C453]/50 shadow-[0_0_12px_rgba(246,196,83,0.2)]' : ''}
+                          ${active === i ? 'ring-2 ring-purple-400/70' : ''}
+                        `}
+                        style={{
+                          background: `linear-gradient(135deg, ${wash}, transparent)`,
+                        }}
                         {...getHandlers(i)}
                       >
                         {isKey && (
-                          <span className="absolute -top-0.5 -right-0.5 text-[8px]">{MOON_ICONS[day.moonPhaseName]}</span>
+                          <span className="absolute -top-0.5 -right-0.5 text-[8px]">
+                            {MOON_ICONS[day.moonPhaseName]}
+                          </span>
                         )}
-                        <span className={`text-[10px] font-bold ${isToday ? 'text-yellow-300' : 'text-white'}`}>{dayNum}</span>
-                        <span className="text-[8px]" style={{ color: rulerColor }}>{PLANET_GLYPHS[day.dayRuler]}</span>
+                        <span className={`text-[10px] font-bold ${isTodayCell ? 'text-[#F6C453]' : 'text-white'}`}>
+                          {dayNum}
+                        </span>
+                        <span className="text-[8px]" style={{ color: rulerColor }}>
+                          {PLANET_GLYPHS[day.dayRuler]}
+                        </span>
                       </motion.div>
                     );
                   })}
                 </div>
-                <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-white/5">
-                  {Object.entries(NODE_STYLE).filter(([k]) => k !== 'U_NODE').map(([type, s]) => (
-                    <div key={type} className="flex items-center gap-1">
-                      <div className={`w-2.5 h-2.5 rounded border ${s.border} bg-gradient-to-b ${s.bg}`} />
-                      <span className={`text-[9px] ${s.text}`}>{s.label}</span>
-                    </div>
-                  ))}
+
+                {/* Legend */}
+                <div className="flex flex-wrap gap-3 mt-3 pt-3 border-t border-white/[0.05]">
+                  {Object.entries(NODE_LABEL)
+                    .filter(([k]) => k !== 'U_NODE')
+                    .map(([type, nl]) => (
+                      <div key={type} className="flex items-center gap-1.5">
+                        <div
+                          className="w-2.5 h-2.5 rounded-full border border-white/10"
+                          style={{ backgroundColor: nl.color }}
+                        />
+                        <span className={`text-[9px] font-medium ${nl.text}`}>{nl.label}</span>
+                      </div>
+                    ))}
                 </div>
+
+                {/* Active day detail panel */}
                 {active !== null && monthGrid[active] && (
-                  <div className="mt-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/30 text-xs">
-                    <p className="text-white font-bold">{monthGrid[active]!.date}</p>
-                    <p className="text-gray-400 mt-1">Ruler: {monthGrid[active]!.dayRuler} · Moon: {monthGrid[active]!.moonPhaseName} · Score: {monthGrid[active]!.score}</p>
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs"
+                  >
+                    <p className="text-white font-bold font-mono">{monthGrid[active]!.date}</p>
+                    <p className="text-gray-400 mt-1">
+                      Ruler: {monthGrid[active]!.dayRuler} &middot; Moon: {monthGrid[active]!.moonPhaseName} &middot; Sign: {monthGrid[active]!.moonSign} &middot; Score: {monthGrid[active]!.score}
+                    </p>
+                  </motion.div>
                 )}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
+      </CosmicGlassCard>
     </motion.div>
   );
 }
