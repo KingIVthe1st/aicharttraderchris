@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { WeeklyCalendarDay } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props {
   calendar: WeeklyCalendarDay[];
@@ -36,6 +39,7 @@ const DAY_ABBREVS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export default function TradingDayCalendar({ calendar, isLoading }: Props) {
   const [showMonth, setShowMonth] = useState(false);
+  const { active, getHandlers } = useInteractiveSelection<number>();
   const today = new Date().toISOString().split('T')[0];
 
   const week = calendar.slice(0, 7);
@@ -75,13 +79,17 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
           <div className="flex items-center gap-2">
             <span className="text-lg">📅</span>
             <h3 className="text-white font-bold text-sm uppercase tracking-widest">Optimum Trading Calendar</h3>
+            <CosmicInfoTooltip label="Calendar quality colors">{COSMIC_TOOLTIPS.calendarPrime.text}</CosmicInfoTooltip>
           </div>
-          <button
-            onClick={() => setShowMonth(v => !v)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 text-white text-[11px] font-medium transition-all"
-          >
-            {showMonth ? '↑ Week View' : '↓ Month View'}
-          </button>
+          <div className="flex items-center gap-2">
+            <CosmicInfoTooltip label="Month view info">Expand the full month grid to see day-by-day cosmic quality at a glance. Tap any day for details.</CosmicInfoTooltip>
+            <button
+              onClick={() => setShowMonth(v => !v)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/20 bg-white/5 hover:bg-white/10 text-white text-[11px] font-medium transition-all"
+            >
+              {showMonth ? '↑ Week View' : '↓ Month View'}
+            </button>
+          </div>
         </div>
 
         {/* Week strip */}
@@ -109,7 +117,12 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
                 <span className={`text-lg font-black ${isToday ? 'text-yellow-300' : 'text-white'}`}>{dayNum}</span>
                 <span className="text-[14px]" style={{ color: rulerColor }}>{PLANET_GLYPHS[day.dayRuler]}</span>
                 <span className={`text-[8px] font-bold uppercase ${s.text}`}>{s.label}</span>
-                <span className="text-[10px] mt-0.5">{MOON_ICONS[day.moonPhaseName] || ''}</span>
+                <span className="text-[10px] mt-0.5 inline-flex items-center gap-0.5">
+                  {MOON_ICONS[day.moonPhaseName] || ''}
+                  {KEY_PHASES.has(day.moonPhaseName) && (
+                    <CosmicInfoTooltip label="Moon phase">{COSMIC_TOOLTIPS.calendarMoonIcon.text}</CosmicInfoTooltip>
+                  )}
+                </span>
               </motion.div>
             );
           })}
@@ -144,8 +157,8 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: i * 0.008 }}
-                        className={`relative h-10 rounded-lg border flex flex-col items-center justify-center cursor-default bg-gradient-to-b ${s.bg} ${s.border} ${isToday ? 'ring-1 ring-yellow-400/80' : ''}`}
-                        title={`${day.date} | ${day.dayRuler} Day | Moon in ${day.moonSign} | ${day.nodeType}`}
+                        className={`relative h-10 rounded-lg border flex flex-col items-center justify-center cursor-pointer bg-gradient-to-b ${s.bg} ${s.border} ${isToday ? 'ring-1 ring-yellow-400/80' : ''} ${active === i ? 'ring-2 ring-purple-400/70' : ''}`}
+                        {...getHandlers(i)}
                       >
                         {isKey && (
                           <span className="absolute -top-0.5 -right-0.5 text-[8px]">{MOON_ICONS[day.moonPhaseName]}</span>
@@ -164,6 +177,12 @@ export default function TradingDayCalendar({ calendar, isLoading }: Props) {
                     </div>
                   ))}
                 </div>
+                {active !== null && monthGrid[active] && (
+                  <div className="mt-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/30 text-xs">
+                    <p className="text-white font-bold">{monthGrid[active]!.date}</p>
+                    <p className="text-gray-400 mt-1">Ruler: {monthGrid[active]!.dayRuler} · Moon: {monthGrid[active]!.moonPhaseName} · Score: {monthGrid[active]!.score}</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           )}
