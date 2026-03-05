@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props {
   moonSign: string;
@@ -87,11 +89,19 @@ export default function MarketTimingGuide({ moonSign, planetaryRuler }: Props) {
               <span className="text-3xl">{current.glyph}</span>
               <div>
                 <p className="text-white font-bold text-sm">Moon in {moonSign}</p>
-                <p className={`text-[10px] font-black uppercase tracking-wider ${current.sentimentColor}`}>{current.sentiment}</p>
+                <div className="flex items-center gap-1">
+                  <p className={`text-[10px] font-black uppercase tracking-wider ${current.sentimentColor}`}>{current.sentiment}</p>
+                  <CosmicInfoTooltip label="About sentiment">
+                    <p>{COSMIC_TOOLTIPS.sentimentLabel.text}</p>
+                  </CosmicInfoTooltip>
+                </div>
               </div>
             </div>
             <div className={`flex items-center gap-1 px-2 py-1 rounded-full border text-[9px] font-bold ${fit.bg} ${fit.color}`}>
               {fit.label}
+              <CosmicInfoTooltip label="About cosmic fit">
+                <p>{COSMIC_TOOLTIPS.fitBadge.text}</p>
+              </CosmicInfoTooltip>
             </div>
           </div>
           <p className="text-gray-300 text-[11px] leading-relaxed mt-3">{current.description}</p>

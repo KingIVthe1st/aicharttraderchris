@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { MoonPhase, VOCStatus } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props {
   moonPhase: MoonPhase;
@@ -131,13 +133,34 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
           >
             <span>{signGlyph}</span>
             <span>Moon in {moonSign}</span>
+            <CosmicInfoTooltip label="About moon sign">
+              <p>{COSMIC_TOOLTIPS.moonSignBadge.text}</p>
+            </CosmicInfoTooltip>
           </motion.div>
         </div>
 
+        {/* Illumination label with tooltip */}
+        <div className="flex items-center justify-center gap-1 mt-2">
+          <span className="text-xs font-bold" style={{ color: signColor, fontFamily: 'monospace' }}>{Math.round(illum * 100)}% illuminated</span>
+          <CosmicInfoTooltip label="About illumination">
+            <p>{COSMIC_TOOLTIPS.illumination.text}</p>
+          </CosmicInfoTooltip>
+        </div>
+
         {/* Phase info */}
-        <div className="mt-6 text-center space-y-1">
-          <p className="text-white font-bold text-base">{moonPhase.name}</p>
-          <p className="text-gray-400 text-[11px]">{moonPhase.isWaxing ? '↑ Waxing' : '↓ Waning'} · Day {Math.round(moonPhase.daysIntoCycle || 0)}</p>
+        <div className="mt-3 text-center space-y-1">
+          <div className="flex items-center justify-center gap-1">
+            <p className="text-white font-bold text-base">{moonPhase.name}</p>
+            <CosmicInfoTooltip label="About moon phase">
+              <p>{COSMIC_TOOLTIPS.phaseName.text}</p>
+            </CosmicInfoTooltip>
+          </div>
+          <div className="flex items-center justify-center gap-1">
+            <p className="text-gray-400 text-[11px]">{moonPhase.isWaxing ? '↑ Waxing' : '↓ Waning'} · Day {Math.round(moonPhase.daysIntoCycle || 0)}</p>
+            <CosmicInfoTooltip label="About waxing and waning">
+              <p>{COSMIC_TOOLTIPS.waxingWaning.text}</p>
+            </CosmicInfoTooltip>
+          </div>
           <p className="text-gray-300 text-[11px] italic mt-2 px-2">{SIGN_TRADING_HINT[moonSign] || ''}</p>
         </div>
 
@@ -149,11 +172,17 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
           >
             <span className="w-2 h-2 rounded-full bg-red-400" />
             <span className="text-red-300 text-[10px] font-bold uppercase">Void of Course</span>
+            <CosmicInfoTooltip label="About void of course">
+              <p>{COSMIC_TOOLTIPS.vocStatus.text}</p>
+            </CosmicInfoTooltip>
           </motion.div>
         ) : (
           <div className="mt-3 flex items-center gap-1.5 px-3 py-1 rounded-lg border border-emerald-500/30 bg-emerald-500/10">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
             <span className="text-emerald-300 text-[10px]">Moon Clear</span>
+            <CosmicInfoTooltip label="About void of course">
+              <p>{COSMIC_TOOLTIPS.vocStatus.text}</p>
+            </CosmicInfoTooltip>
           </div>
         )}
       </div>
