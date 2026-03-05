@@ -45,7 +45,7 @@ const CIVILIZATIONS = [
     border: 'border-yellow-500/30',
     accent: '#5DD8FF',
     glyph: '𓂀',
-    getSignal: (h: HoraGridHour) => h.egyptian.decanEnergy.split(' ')[0],
+    getSignal: (h: HoraGridHour) => (h.egyptian.decanEnergy ?? '').split(' ')[0] || 'Decan',
     getStatus: (h: HoraGridHour): 'ALIGNED' | 'MIXED' | 'CONFLICT' => {
       const e = (h.egyptian.decanEnergy ?? '').toLowerCase();
       return e.includes('favorable') || e.includes('strong') ? 'ALIGNED' : e.includes('caution') || e.includes('weak') ? 'CONFLICT' : 'MIXED';
