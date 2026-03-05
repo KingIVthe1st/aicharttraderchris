@@ -153,6 +153,7 @@ export interface CosmicIntelligence {
   neoScore: NEOScore;
   moonPhase: MoonPhase;
   vocStatus: VOCStatus;
+  moonSign: string;
   planetaryHours: PlanetaryHourMap;
   horaGrid: HoraGrid;
   chineseHour: ShiChenHour;
