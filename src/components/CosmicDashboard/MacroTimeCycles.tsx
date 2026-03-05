@@ -129,9 +129,9 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
         <CosmicGlassCard accentColor="indigo">
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1 mb-3">
-              <p className="text-indigo-300 text-[10px] uppercase tracking-widest font-bold">Lunar Arc</p>
+              <p className="text-indigo-300 text-[11px] uppercase tracking-widest font-bold">Lunar Arc</p>
               <CosmicInfoTooltip label="About Lunar Month">
-                <p>{COSMIC_TOOLTIPS.lunarArc.text}</p>
+                <p className="text-[12px]">{COSMIC_TOOLTIPS.lunarArc.text}</p>
               </CosmicInfoTooltip>
             </div>
 
@@ -143,10 +143,12 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
                   <stop offset="66%" stopColor="#F6C453" />
                   <stop offset="100%" stopColor="#334155" />
                 </linearGradient>
-                <filter id="lunarDotGlow">
-                  <feGaussianBlur stdDeviation="4" result="blur" />
+                <filter id="lunarDotGlow" x="-200%" y="-200%" width="500%" height="500%">
+                  <feGaussianBlur stdDeviation="6" result="blur1" />
+                  <feGaussianBlur stdDeviation="3" in="SourceGraphic" result="blur2" />
                   <feMerge>
-                    <feMergeNode in="blur" />
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
@@ -176,37 +178,39 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
                 const mPos = polarToXY(100, 100, 70, mAngle);
                 return (
                   <g key={m.day}>
-                    <circle cx={mPos.x} cy={mPos.y} r="12" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-                    <text x={mPos.x} y={mPos.y + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11">{m.label}</text>
+                    <circle cx={mPos.x} cy={mPos.y} r="13" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+                    <text x={mPos.x} y={mPos.y + 1} textAnchor="middle" dominantBaseline="middle" fontSize="16">{m.label}</text>
                   </g>
                 );
               })}
 
-              {/* Radial halo */}
-              <circle cx={dotPos.x} cy={dotPos.y} r="20" fill="rgba(99,102,241,0.2)" />
+              {/* Radial halo - outer */}
+              <circle cx={dotPos.x} cy={dotPos.y} r="24" fill="rgba(99,102,241,0.1)" />
+              {/* Radial halo - inner */}
+              <circle cx={dotPos.x} cy={dotPos.y} r="16" fill="rgba(109,91,255,0.25)" />
 
               {/* Current position dot with glow */}
               <motion.circle
                 cx={dotPos.x}
                 cy={dotPos.y}
-                r="6"
+                r="7"
                 fill="#6D5BFF"
                 filter="url(#lunarDotGlow)"
-                animate={{ r: [5, 7, 5], opacity: [1, 0.8, 1] }}
+                animate={{ r: [6, 8, 6], opacity: [1, 0.85, 1] }}
                 transition={{ duration: 2, repeat: Infinity }}
               />
 
               {/* Center text */}
-              <text x="100" y="92" textAnchor="middle" fill="white" fontSize="22" fontWeight="900" fontFamily="monospace" className="tabular-nums">
+              <text x="100" y="90" textAnchor="middle" fill="white" fontSize="28" fontWeight="900" fontFamily="monospace" className="tabular-nums">
                 {`Day ${Math.round(days)}`}
               </text>
-              <text x="100" y="112" textAnchor="middle" fill="#6B7280" fontSize="11" fontFamily="monospace">
+              <text x="100" y="112" textAnchor="middle" fill="#6B7280" fontSize="13" fontFamily="monospace">
                 / 29
               </text>
             </svg>
 
-            <p className="text-white font-bold text-xs mt-1">{moonPhase.name}</p>
-            <p className="text-gray-400 text-[10px] mt-0.5">{moonPhase.isWaxing ? '\u2191 Waxing' : '\u2193 Waning'}</p>
+            <p className="text-white font-bold text-[13px] mt-1">{moonPhase.name}</p>
+            <p className="text-gray-400 text-[12px] mt-0.5">{moonPhase.isWaxing ? '\u2191 Waxing' : '\u2193 Waning'}</p>
           </div>
         </CosmicGlassCard>
 
@@ -214,9 +218,9 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
         <CosmicGlassCard accentColor="amber">
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1 mb-3">
-              <p className="text-amber-300 text-[10px] uppercase tracking-widest font-bold">Mercury Cycle</p>
+              <p className="text-amber-300 text-[11px] uppercase tracking-widest font-bold">Mercury Cycle</p>
               <CosmicInfoTooltip label="About Mercury status">
-                <p>{COSMIC_TOOLTIPS.mercuryStatus.text}</p>
+                <p className="text-[12px]">{COSMIC_TOOLTIPS.mercuryStatus.text}</p>
               </CosmicInfoTooltip>
             </div>
 
@@ -229,44 +233,55 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
                   <stop offset="80%" stopColor="#F59E0B" />
                   <stop offset="100%" stopColor="#C0C0C0" />
                 </linearGradient>
-                <filter id="mercuryGlyphGlow">
-                  <feGaussianBlur stdDeviation="3" result="blur" />
+                <filter id="mercuryGlyphGlow" x="-200%" y="-200%" width="500%" height="500%">
+                  <feGaussianBlur stdDeviation="5" result="blur1" />
+                  <feGaussianBlur stdDeviation="2.5" in="SourceGraphic" result="blur2" />
                   <feMerge>
-                    <feMergeNode in="blur" />
+                    <feMergeNode in="blur1" />
+                    <feMergeNode in="blur2" />
                     <feMergeNode in="SourceGraphic" />
                   </feMerge>
                 </filter>
               </defs>
 
               {/* Orbital ellipse */}
-              <ellipse cx="80" cy="55" rx="60" ry="30" fill="none" stroke="url(#mercuryOrbitGrad)" strokeWidth="1.5" opacity="0.6" />
+              <ellipse cx="80" cy="55" rx="60" ry="30" fill="none" stroke="url(#mercuryOrbitGrad)" strokeWidth="2" opacity="0.7" filter="url(#mercuryGlyphGlow)" />
 
               {/* Sun at center */}
-              <text x="80" y="59" textAnchor="middle" fontSize="14" fill="#F6C453">{'\u2609'}</text>
+              <text x="80" y="60" textAnchor="middle" fontSize="18" fill="#F6C453">{'\u2609'}</text>
 
               {/* Mercury glyph marker with glow */}
               <motion.g
                 animate={{ opacity: [0.8, 1, 0.8] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <circle cx={mercuryPos.x} cy={mercuryPos.y} r="6" fill={MERCURY_STATUS_STYLES[mercury.status].color} filter="url(#mercuryGlyphGlow)" opacity="0.8" />
-                <text x={mercuryPos.x} y={mercuryPos.y + 1} textAnchor="middle" dominantBaseline="middle" fontSize="9" fill="white">{'\u263F'}</text>
+                <circle cx={mercuryPos.x} cy={mercuryPos.y} r="8" fill={MERCURY_STATUS_STYLES[mercury.status].color} filter="url(#mercuryGlyphGlow)" opacity="0.8" />
+                <text x={mercuryPos.x} y={mercuryPos.y + 1} textAnchor="middle" dominantBaseline="middle" fontSize="12" fill="white">{'\u263F'}</text>
               </motion.g>
 
               {/* Zone labels */}
-              <text x="15" y="18" fontSize="7" fill="#94A3B8" opacity="0.5">Direct</text>
-              <text x="120" y="18" fontSize="7" fill="#EF4444" opacity="0.5">Rx</text>
+              <text x="15" y="18" fontSize="9" fill="#94A3B8" opacity="0.6">Direct</text>
+              <text x="120" y="18" fontSize="9" fill="#EF4444" opacity="0.6">Rx</text>
             </svg>
 
             {/* Status badge: glass pill with CosmicStatusOrb */}
             <div className="flex items-center gap-2 mt-2">
-              <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10">
+              <div
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${
+                  mercury.status === 'retrograde'
+                    ? 'bg-red-500/[0.08] border-red-500/30'
+                    : 'bg-white/[0.04] border-white/10'
+                }`}
+                style={mercury.status === 'retrograde' ? { boxShadow: '0 0 12px rgba(239,68,68,0.3)' } : undefined}
+              >
                 <CosmicStatusOrb
                   status={mercuryMeta.orbStatus}
                   size="sm"
                   pulse={mercuryMeta.pulse}
                 />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/80">
+                <span className={`text-[12px] font-bold uppercase tracking-wider ${
+                  mercury.status === 'retrograde' ? 'text-red-400' : 'text-white/80'
+                }`}>
                   {'\u263F'} {mercuryMeta.label}
                 </span>
               </div>
@@ -274,7 +289,7 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
 
             {mercury.status === 'pre-shadow' && (
               <div className="flex items-center gap-1 mt-1">
-                <span className="text-amber-400 text-[9px] font-medium">Pre-shadow active</span>
+                <span className="text-amber-400 text-[11px] font-medium">Pre-shadow active</span>
                 <CosmicInfoTooltip label="About Pre-Shadow phase">
                   <p>{COSMIC_TOOLTIPS.preShadow.text}</p>
                 </CosmicInfoTooltip>
@@ -282,7 +297,7 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
             )}
             {mercury.status === 'post-shadow' && (
               <div className="flex items-center gap-1 mt-1">
-                <span className="text-amber-400 text-[9px] font-medium">Post-shadow active</span>
+                <span className="text-amber-400 text-[11px] font-medium">Post-shadow active</span>
                 <CosmicInfoTooltip label="About Post-Shadow phase">
                   <p>{COSMIC_TOOLTIPS.postShadow.text}</p>
                 </CosmicInfoTooltip>
@@ -290,9 +305,9 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
             )}
 
             {/* Countdown */}
-            <p className="text-gray-400 text-[10px] mt-2 font-mono text-sm">
-              <span className="text-white font-bold tabular-nums">{mercury.daysToNext}d</span>{' '}
-              <span className="text-gray-500">until {mercury.nextPhase}</span>
+            <p className="mt-2 font-mono">
+              <span className="text-xl font-bold tabular-nums" style={{ color: MERCURY_STATUS_STYLES[mercury.status].color }}>{mercury.daysToNext}d</span>{' '}
+              <span className="text-gray-400 text-[12px]">until {mercury.nextPhase}</span>
             </p>
           </div>
         </CosmicGlassCard>
@@ -301,14 +316,16 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
         <CosmicGlassCard accentColor="nebula">
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1 mb-4">
-              <p className="text-[#6D5BFF] text-[10px] uppercase tracking-widest font-bold">Weekly Rhythm</p>
+              <p className="text-[#6D5BFF] text-[11px] uppercase tracking-widest font-bold">Weekly Rhythm</p>
               <CosmicInfoTooltip label="About Weekly Rhythm">
-                <p>{COSMIC_TOOLTIPS.weeklyRhythm.text}</p>
+                <p className="text-[12px]">{COSMIC_TOOLTIPS.weeklyRhythm.text}</p>
               </CosmicInfoTooltip>
             </div>
 
-            {/* Day circles with connecting lines */}
-            <div className="flex items-center w-full justify-center">
+            {/* Day circles with connecting track */}
+            <div className="relative flex items-center w-full justify-center">
+              {/* Connecting track line behind circles */}
+              <div className="absolute top-[22px] left-1/2 -translate-x-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" style={{ width: '85%' }} />
               {DAY_NAMES_SHORT.map((day, i) => {
                 const ruler = DAY_RULERS[i];
                 const isToday = i === todayDow;
@@ -316,20 +333,20 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
                 return (
                   <div key={day} className="flex items-center">
                     {i > 0 && (
-                      <div className="h-[1px] w-2 bg-white/[0.06]" />
+                      <div className="h-[1px] w-1.5 bg-white/[0.08]" />
                     )}
-                    <div className="flex flex-col items-center gap-1">
+                    <div className="flex flex-col items-center gap-1 relative z-10">
                       <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        className={`w-11 h-11 rounded-full flex items-center justify-center ${
                           isToday
-                            ? 'border border-[#F6C453]/50 bg-white/[0.08]'
+                            ? 'border-2 border-[#F6C453]/60 bg-white/[0.1]'
                             : 'border border-white/10 bg-white/5'
                         }`}
-                        style={isToday ? { boxShadow: '0 0 12px rgba(246,196,83,0.3)' } : undefined}
+                        style={isToday ? { boxShadow: `0 0 8px rgba(246,196,83,0.35), 0 0 20px rgba(246,196,83,0.2), 0 0 40px rgba(246,196,83,0.1)` } : undefined}
                       >
-                        <span className="text-[15px]" style={{ color }}>{PLANET_GLYPHS[ruler]}</span>
+                        <span className="text-[16px]" style={{ color }}>{PLANET_GLYPHS[ruler]}</span>
                       </div>
-                      <span className={`text-[7px] font-bold ${isToday ? 'text-[#F6C453]' : 'text-gray-500'}`}>{day}</span>
+                      <span className={`text-[10px] font-bold ${isToday ? 'text-[#F6C453]' : 'text-gray-500'}`}>{day}</span>
                     </div>
                   </div>
                 );
@@ -337,8 +354,8 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
             </div>
 
             <div className="mt-3 text-center">
-              <p className="text-gray-500 text-[10px]">Today</p>
-              <p className="text-white font-bold text-sm" style={{ color: DAY_COLORS[DAY_RULERS[todayDow]] }}>
+              <p className="text-gray-500 text-[11px]">Today</p>
+              <p className="text-white font-bold text-[14px]" style={{ color: DAY_COLORS[DAY_RULERS[todayDow]] }}>
                 {PLANET_GLYPHS[DAY_RULERS[todayDow]]} {DAY_RULERS[todayDow]} Day
               </p>
             </div>
