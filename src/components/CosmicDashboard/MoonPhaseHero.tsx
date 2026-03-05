@@ -81,10 +81,25 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
                   <stop offset="100%" stopColor="#334155" stopOpacity="0.5" />
                 </radialGradient>
 
-                {/* Outer indigo halo glow */}
+                {/* Inner radial glow on illuminated side — moonlight feel */}
+                <radialGradient id="innerMoonlight" cx="40%" cy="40%" r="60%">
+                  <stop offset="0%" stopColor="#c7d2fe" stopOpacity="0.15" />
+                  <stop offset="50%" stopColor="#94a3b8" stopOpacity="0.06" />
+                  <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                </radialGradient>
+
+                {/* Outer indigo halo glow — brighter and more dramatic */}
                 <radialGradient id="outerHaloGlow" cx="50%" cy="50%" r="50%">
-                  <stop offset="60%" stopColor="rgba(99,102,241,0.15)" />
+                  <stop offset="50%" stopColor="rgba(99,102,241,0.25)" />
+                  <stop offset="80%" stopColor="rgba(99,102,241,0.08)" />
                   <stop offset="100%" stopColor="rgba(99,102,241,0)" />
+                </radialGradient>
+
+                {/* Soft outer light bloom — large faint glow behind moon */}
+                <radialGradient id="outerBloom" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stopColor="rgba(226,232,240,0.07)" />
+                  <stop offset="60%" stopColor="rgba(148,163,184,0.03)" />
+                  <stop offset="100%" stopColor="transparent" stopOpacity="0" />
                 </radialGradient>
 
                 {/* Soft terminator gradient overlay — feathers light/dark edge */}
@@ -116,10 +131,13 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
                 </clipPath>
 
                 <filter id="moonGlowFilter">
-                  <feGaussianBlur stdDeviation="6" result="blur" />
+                  <feGaussianBlur stdDeviation="9" result="blur" />
                   <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
                 </filter>
               </defs>
+
+              {/* Soft outer light bloom — large faint glow behind moon */}
+              <circle cx={cx} cy={cy} r={r + 20} fill="url(#outerBloom)" />
 
               {/* Outer glow halo — atmospheric circle beyond moon */}
               <circle cx={cx} cy={cy} r={r + 30} fill="url(#outerHaloGlow)" />
@@ -139,12 +157,14 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
                 strokeOpacity="0.8"
               />
 
-              {/* Dark moon base */}
-              <circle cx={cx} cy={cy} r={r} fill="#0f172a" />
+              {/* Dark moon base — subtle surface texture feel */}
+              <circle cx={cx} cy={cy} r={r} fill="#1a1a2e" />
 
               {/* Illuminated portion */}
               <g clipPath={`url(#${clipId})`}>
                 <circle cx={cx} cy={cy} r={r} fill="url(#moonGlow)" filter="url(#moonGlowFilter)" />
+                {/* Inner radial glow on illuminated side */}
+                <circle cx={cx} cy={cy} r={r} fill="url(#innerMoonlight)" />
               </g>
 
               {/* Soft terminator overlay — feathers the light/dark edge */}
@@ -163,11 +183,12 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
 
             {/* Moon sign badge — glass pill */}
             <motion.div
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 whitespace-nowrap"
-              animate={{ boxShadow: [`0 0 8px ${signColor}40`, `0 0 16px ${signColor}60`, `0 0 8px ${signColor}40`] }}
+              className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-5 py-2 whitespace-nowrap hover:bg-white/10 transition-colors"
+              animate={{ boxShadow: [`0 0 10px ${signColor}50`, `0 0 20px ${signColor}70`, `0 0 10px ${signColor}50`] }}
               transition={{ duration: 2, repeat: Infinity }}
+              whileHover={{ boxShadow: `0 0 24px ${signColor}90` }}
             >
-              <span className="text-sm" style={{ color: signColor }}>{signGlyph}</span>
+              <span className="text-base" style={{ color: signColor }}>{signGlyph}</span>
               <span className="text-xs font-bold text-white/90">Moon in {moonSign}</span>
               <span className="w-2 h-2 rounded-full" style={{ backgroundColor: signColor }} />
               <CosmicInfoTooltip label="About moon sign">
@@ -186,12 +207,12 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
               <p>{COSMIC_TOOLTIPS.illumination.text}</p>
             </CosmicInfoTooltip>
           </div>
-          <p className="text-indigo-300/60 text-[10px] uppercase tracking-widest font-medium -mt-1">illuminated</p>
+          <p className="text-indigo-300/60 text-[11px] uppercase tracking-widest font-medium -mt-1">illuminated</p>
 
           {/* Phase name — gradient text */}
           <div className="mt-3 text-center space-y-1">
             <div className="flex items-center justify-center gap-1">
-              <p className="bg-gradient-to-r from-[#2EC5FF] to-[#6D5BFF] bg-clip-text text-transparent text-lg font-bold">
+              <p className="bg-gradient-to-r from-[#2EC5FF] to-[#6D5BFF] bg-clip-text text-transparent text-[16px] lg:text-lg font-bold">
                 {moonPhase.name}
               </p>
               <CosmicInfoTooltip label="About moon phase">
@@ -199,12 +220,12 @@ export default function MoonPhaseHero({ moonPhase, vocStatus, moonSign }: Props)
               </CosmicInfoTooltip>
             </div>
             <div className="flex items-center justify-center gap-1">
-              <p className="text-gray-400 text-[11px]">{moonPhase.isWaxing ? '↑ Waxing' : '↓ Waning'} · Day {Math.round(moonPhase.daysIntoCycle || 0)}</p>
+              <p className="text-gray-400 text-[12px]">{moonPhase.isWaxing ? '↑ Waxing' : '↓ Waning'} · Day {Math.round(moonPhase.daysIntoCycle || 0)}</p>
               <CosmicInfoTooltip label="About waxing and waning">
                 <p>{COSMIC_TOOLTIPS.waxingWaning.text}</p>
               </CosmicInfoTooltip>
             </div>
-            <p className="text-gray-300 text-[11px] italic mt-2 px-2">{SIGN_TRADING_HINT[moonSign] || ''}</p>
+            <p className="text-gray-400 text-[12px] mt-2 px-2">{SIGN_TRADING_HINT[moonSign] || ''}</p>
           </div>
 
           {/* VOC Status */}

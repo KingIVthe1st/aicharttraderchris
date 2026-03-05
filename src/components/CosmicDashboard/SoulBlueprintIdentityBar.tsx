@@ -66,9 +66,14 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
                   <p>{COSMIC_TOOLTIPS.lifePathNumber.text}</p>
                 </CosmicInfoTooltip>
               </div>
-              <span className="text-7xl lg:text-8xl font-black font-mono leading-none bg-gradient-to-r from-[#6D5BFF] to-[#2EC5FF] bg-clip-text text-transparent">
+              <motion.span
+                className="text-7xl lg:text-8xl font-black font-mono leading-none bg-gradient-to-r from-[#6D5BFF] to-[#2EC5FF] bg-clip-text text-transparent"
+                animate={{ textShadow: ['0 0 0px rgba(109,91,255,0)', '0 0 20px rgba(109,91,255,0.3)', '0 0 0px rgba(109,91,255,0)'] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+                style={{ filter: 'drop-shadow(0 0 6px rgba(109,91,255,0.15))' }}
+              >
                 {blueprint.lifePath}
-              </span>
+              </motion.span>
               <span className="text-xs uppercase tracking-widest text-nebula-400 font-semibold mt-2">
                 {archetype}
               </span>
@@ -80,42 +85,75 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
               <div className="relative" style={{ width: 200, height: 160 }}>
                 {/* SVG connecting lines */}
                 <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 160">
+                  <defs>
+                    <filter id="lineGlow">
+                      <feGaussianBlur stdDeviation="2" result="blur" />
+                      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    </filter>
+                    <linearGradient id="sunToMoonLine" x1="100" y1="40" x2="40" y2="120" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="rgba(246,196,83,0.2)" />
+                      <stop offset="100%" stopColor="rgba(148,163,184,0.18)" />
+                    </linearGradient>
+                    <linearGradient id="sunToRisingLine" x1="100" y1="40" x2="160" y2="120" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="rgba(246,196,83,0.2)" />
+                      <stop offset="100%" stopColor="rgba(129,140,248,0.18)" />
+                    </linearGradient>
+                    <linearGradient id="moonToRisingLine" x1="40" y1="120" x2="160" y2="120" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="rgba(148,163,184,0.18)" />
+                      <stop offset="100%" stopColor="rgba(129,140,248,0.18)" />
+                    </linearGradient>
+                  </defs>
                   {/* Sun (top center) to Moon (bottom-left) */}
-                  <line x1="100" y1="40" x2="40" y2="120" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                  <line x1="100" y1="40" x2="40" y2="120" stroke="url(#sunToMoonLine)" strokeWidth="1.5" filter="url(#lineGlow)" />
                   {/* Sun (top center) to Rising (bottom-right) */}
-                  <line x1="100" y1="40" x2="160" y2="120" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                  <line x1="100" y1="40" x2="160" y2="120" stroke="url(#sunToRisingLine)" strokeWidth="1.5" filter="url(#lineGlow)" />
                   {/* Moon (bottom-left) to Rising (bottom-right) */}
-                  <line x1="40" y1="120" x2="160" y2="120" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                  <line x1="40" y1="120" x2="160" y2="120" stroke="url(#moonToRisingLine)" strokeWidth="1.5" filter="url(#lineGlow)" />
                 </svg>
 
                 {/* Sun - top center */}
-                <div className="absolute" style={{ left: '50%', top: 0, transform: 'translateX(-50%)' }}>
+                <div className="absolute group" style={{ left: '50%', top: 0, transform: 'translateX(-50%)' }}>
                   <CosmicInfoTooltip label="About sun sign">
                     <p>{COSMIC_TOOLTIPS.sunSign.text}</p>
                   </CosmicInfoTooltip>
-                  <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 border border-white/10 rounded-full flex flex-col items-center justify-center">
+                  <div
+                    className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 border border-white/10 rounded-full flex flex-col items-center justify-center transition-shadow duration-300"
+                    style={{ boxShadow: '0 0 8px rgba(246,196,83,0.15)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 0 16px rgba(246,196,83,0.35)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 8px rgba(246,196,83,0.15)'; }}
+                  >
                     <span className="text-2xl lg:text-3xl leading-none">{sunGlyph}</span>
                     <span className="text-[9px] lg:text-[10px] text-gray-400 mt-0.5">{constellationItems[0].sign}</span>
                   </div>
                 </div>
 
                 {/* Moon - bottom-left */}
-                <div className="absolute" style={{ left: 0, bottom: 0 }}>
+                <div className="absolute group" style={{ left: 0, bottom: 0 }}>
                   <CosmicInfoTooltip label="About moon sign">
                     <p>{COSMIC_TOOLTIPS.moonSign.text}</p>
                   </CosmicInfoTooltip>
-                  <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 border border-white/10 rounded-full flex flex-col items-center justify-center">
+                  <div
+                    className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 border border-white/10 rounded-full flex flex-col items-center justify-center transition-shadow duration-300"
+                    style={{ boxShadow: '0 0 8px rgba(148,163,184,0.15)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 0 16px rgba(148,163,184,0.35)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 8px rgba(148,163,184,0.15)'; }}
+                  >
                     <span className="text-2xl lg:text-3xl leading-none">{moonGlyph}</span>
                     <span className="text-[9px] lg:text-[10px] text-gray-400 mt-0.5">{constellationItems[1].sign}</span>
                   </div>
                 </div>
 
                 {/* Rising - bottom-right */}
-                <div className="absolute" style={{ right: 0, bottom: 0 }}>
+                <div className="absolute group" style={{ right: 0, bottom: 0 }}>
                   <CosmicInfoTooltip label="About rising sign">
                     <p>{COSMIC_TOOLTIPS.risingSign.text}</p>
                   </CosmicInfoTooltip>
-                  <div className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 border border-white/10 rounded-full flex flex-col items-center justify-center">
+                  <div
+                    className="w-16 h-16 lg:w-20 lg:h-20 bg-white/5 border border-white/10 rounded-full flex flex-col items-center justify-center transition-shadow duration-300"
+                    style={{ boxShadow: '0 0 8px rgba(129,140,248,0.15)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = '0 0 16px rgba(129,140,248,0.35)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = '0 0 8px rgba(129,140,248,0.15)'; }}
+                  >
                     <span className="text-2xl lg:text-3xl leading-none">{risingGlyph}</span>
                     <span className="text-[9px] lg:text-[10px] text-gray-400 mt-0.5">{constellationItems[2].sign}</span>
                   </div>
@@ -167,7 +205,9 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
                 isAlignmentDay ? 'border-t border-[#F6C453]/20' : ''
               }`}
             >
-              <div className="flex gap-2 justify-center pt-4">
+              <div className="relative flex gap-2 justify-center pt-4 items-center">
+                {/* Subtle connecting track behind numbers */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 h-px w-[calc(100%-3rem)] bg-gradient-to-r from-transparent via-white/10 to-transparent" style={{ marginTop: '8px' }} />
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => {
                   const isPersonalDay = n === personalDay;
                   return (
@@ -175,11 +215,12 @@ export default function SoulBlueprintIdentityBar({ blueprint, personalDay, isAli
                       key={n}
                       animate={isPersonalDay ? { scale: [1, 1.12, 1] } : {}}
                       transition={isPersonalDay ? { duration: 2, repeat: Infinity, ease: 'easeInOut' } : {}}
-                      className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold border transition-all ${
+                      className={`relative z-10 inline-flex items-center justify-center rounded-full text-sm font-bold border transition-all ${
                         isPersonalDay
-                          ? 'bg-[#F6C453]/20 border-[#F6C453]/50 text-[#F6C453]'
-                          : 'bg-white/5 border-white/10 text-gray-500'
+                          ? 'w-9 h-9 bg-[#F6C453]/20 border-[#F6C453]/50 text-[#F6C453]'
+                          : 'w-8 h-8 bg-white/5 border-white/10 text-gray-500'
                       }`}
+                      style={isPersonalDay ? { boxShadow: '0 0 12px rgba(246,196,83,0.4), 0 0 24px rgba(246,196,83,0.15)' } : undefined}
                     >
                       {n}
                     </motion.span>
