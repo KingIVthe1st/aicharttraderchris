@@ -61,18 +61,18 @@ export default function SectionTutorialModal({ isOpen, onClose, icon, title, tut
             </div>
 
             {/* Content */}
-            <div className="p-4 space-y-4">
+            <div className="p-5 space-y-4">
               <div>
-                <p className="text-[10px] text-cyan-400 uppercase tracking-wider font-bold mb-1">What it shows</p>
-                <p className="text-gray-300 text-xs leading-relaxed">{tutorial.whatItShows}</p>
+                <p className="text-[11px] text-cyan-400 uppercase tracking-wider font-bold mb-1.5">What it shows</p>
+                <p className="text-gray-300 text-[13px] leading-relaxed">{tutorial.whatItShows}</p>
               </div>
               <div>
-                <p className="text-[10px] text-amber-400 uppercase tracking-wider font-bold mb-1">How to read it</p>
-                <p className="text-gray-300 text-xs leading-relaxed">{tutorial.howToRead}</p>
+                <p className="text-[11px] text-amber-400 uppercase tracking-wider font-bold mb-1.5">How to read it</p>
+                <p className="text-gray-300 text-[13px] leading-relaxed">{tutorial.howToRead}</p>
               </div>
               <div>
-                <p className="text-[10px] text-emerald-400 uppercase tracking-wider font-bold mb-1">Trading tip</p>
-                <p className="text-gray-300 text-xs leading-relaxed">{tutorial.tradingTip}</p>
+                <p className="text-[11px] text-emerald-400 uppercase tracking-wider font-bold mb-1.5">Trading tip</p>
+                <p className="text-gray-300 text-[13px] leading-relaxed">{tutorial.tradingTip}</p>
               </div>
             </div>
           </motion.div>

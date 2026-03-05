@@ -90,36 +90,36 @@ export default function MarketTimingGuide({ moonSign, planetaryRuler }: Props) {
               <div>
                 <p className="text-white font-bold text-sm">Moon in {moonSign}</p>
                 <div className="flex items-center gap-1">
-                  <p className={`text-[10px] font-black uppercase tracking-wider ${current.sentimentColor}`}>{current.sentiment}</p>
+                  <p className={`text-[11px] font-black uppercase tracking-wider ${current.sentimentColor}`}>{current.sentiment}</p>
                   <CosmicInfoTooltip label="About sentiment">
                     <p>{COSMIC_TOOLTIPS.sentimentLabel.text}</p>
                   </CosmicInfoTooltip>
                 </div>
               </div>
             </div>
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-full border text-[9px] font-bold ${fit.bg} ${fit.color}`}>
+            <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full border text-[10px] font-bold ${fit.bg} ${fit.color}`}>
               {fit.label}
               <CosmicInfoTooltip label="About cosmic fit">
                 <p>{COSMIC_TOOLTIPS.fitBadge.text}</p>
               </CosmicInfoTooltip>
             </div>
           </div>
-          <p className="text-gray-300 text-[11px] leading-relaxed mt-3">{current.description}</p>
+          <p className="text-gray-300 text-[12px] leading-relaxed mt-3">{current.description}</p>
           <div className="grid grid-cols-2 gap-2 mt-3">
-            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-1.5">
-              <p className="text-emerald-400 text-[9px] uppercase font-bold mb-0.5">Tactics</p>
-              <p className="text-gray-300 text-[10px]">{current.tactics}</p>
+            <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-2">
+              <p className="text-emerald-400 text-[10px] uppercase font-bold mb-0.5">Tactics</p>
+              <p className="text-gray-300 text-[11px] leading-relaxed">{current.tactics}</p>
             </div>
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-2 py-1.5">
-              <p className="text-red-400 text-[9px] uppercase font-bold mb-0.5">Avoid</p>
-              <p className="text-gray-300 text-[10px]">{current.avoid}</p>
+            <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
+              <p className="text-red-400 text-[10px] uppercase font-bold mb-0.5">Avoid</p>
+              <p className="text-gray-300 text-[11px] leading-relaxed">{current.avoid}</p>
             </div>
           </div>
         </div>
 
         {/* 12-sign grid */}
-        <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-2">All Moon Signs</p>
-        <div className="grid grid-cols-4 gap-1.5">
+        <p className="text-gray-500 text-[11px] uppercase tracking-wider mb-2">All Moon Signs</p>
+        <div className="grid grid-cols-4 gap-2">
           {SIGNS.filter(s => s !== moonSign).map(sign => {
             const g = MOON_SIGN_GUIDE[sign];
             const isExpanded = expandedSign === sign;
@@ -132,8 +132,8 @@ export default function MarketTimingGuide({ moonSign, planetaryRuler }: Props) {
                   onClick={() => setExpandedSign(isExpanded ? null : sign)}
                 >
                   <span className="text-lg">{g.glyph}</span>
-                  <span className="text-[9px] text-gray-300 font-bold">{sign}</span>
-                  <span className={`text-[8px] ${g.sentimentColor}`}>{g.sentiment}</span>
+                  <span className="text-[10px] text-gray-300 font-bold">{sign}</span>
+                  <span className={`text-[9px] ${g.sentimentColor}`}>{g.sentiment}</span>
                 </button>
                 <AnimatePresence>
                   {isExpanded && (
@@ -146,9 +146,9 @@ export default function MarketTimingGuide({ moonSign, planetaryRuler }: Props) {
                     >
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-white font-bold text-xs">{g.glyph} Moon in {sign}</p>
-                        <span className={`text-[9px] font-bold ${signFit.color}`}>{signFit.label}</span>
+                        <span className={`text-[10px] font-bold ${signFit.color}`}>{signFit.label}</span>
                       </div>
-                      <p className="text-gray-300 text-[10px] leading-relaxed">{g.description}</p>
+                      <p className="text-gray-300 text-[11px] leading-relaxed">{g.description}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>

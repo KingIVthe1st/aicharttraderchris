@@ -21,7 +21,7 @@ export default function CosmicZoneAccordion({ zone, children }: Props) {
         <span className={`text-sm font-bold uppercase tracking-wider ${meta.accentText}`}>
           {meta.label}
         </span>
-        <span className="text-gray-500 text-[10px] hidden sm:block">— {meta.description}</span>
+        <span className="text-gray-500 text-[11px] hidden sm:block">— {meta.description}</span>
         <motion.svg
           className={`w-4 h-4 ml-auto ${meta.accentText}`}
           fill="none"

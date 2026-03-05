@@ -31,17 +31,17 @@ export default function CosmicSectionShell({ meta, index, children }: Props) {
         custom={index}
       >
         {/* Section header */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-base">{meta.icon}</span>
+        <div className="flex items-center gap-2.5 mb-3">
+          <span className="text-lg">{meta.icon}</span>
           <div className="flex-1 min-w-0">
-            <h3 className="text-white font-bold text-xs uppercase tracking-widest">{meta.title}</h3>
-            <p className="text-gray-500 text-[10px] truncate">{meta.subtitle}</p>
+            <h3 className="text-white font-bold text-[11px] uppercase tracking-widest">{meta.title}</h3>
+            <p className="text-gray-500 text-[11px] truncate">{meta.subtitle}</p>
           </div>
 
           {/* Help button */}
           <button
             onClick={() => setShowTutorial(true)}
-            className="w-6 h-6 rounded-full bg-gray-700/40 hover:bg-gray-600/50 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+            className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] flex items-center justify-center text-gray-500 hover:text-gray-300 transition-all duration-200 flex-shrink-0"
             aria-label={`Learn about ${meta.title}`}
           >
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -53,7 +53,7 @@ export default function CosmicSectionShell({ meta, index, children }: Props) {
           {/* Collapse toggle */}
           <button
             onClick={() => setExpanded(e => !e)}
-            className="w-6 h-6 rounded-full bg-gray-700/40 hover:bg-gray-600/50 flex items-center justify-center text-gray-500 hover:text-gray-300 transition-colors flex-shrink-0"
+            className="w-7 h-7 rounded-full bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] hover:border-white/[0.12] flex items-center justify-center text-gray-500 hover:text-gray-300 transition-all duration-200 flex-shrink-0"
             aria-label={expanded ? 'Collapse section' : 'Expand section'}
           >
             <motion.svg
@@ -63,7 +63,7 @@ export default function CosmicSectionShell({ meta, index, children }: Props) {
               stroke="currentColor"
               strokeWidth={2}
               animate={{ rotate: expanded ? 0 : -90 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.25 }}
             >
               <path d="M19 9l-7 7-7-7" />
             </motion.svg>

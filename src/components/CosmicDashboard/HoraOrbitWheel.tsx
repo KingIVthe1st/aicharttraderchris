@@ -130,7 +130,7 @@ export default function HoraOrbitWheel({ hours }: Props) {
             stroke="rgba(255,255,255,0.06)" strokeWidth="0.5" strokeDasharray="3 8" />
 
           {/* ── Ring separators (dashed circles) ── */}
-          {[175, 155, 140, 120].map((r, i) => (
+          {[175, 155, 140, 120].map((r) => (
             <circle key={`sep-${r}`} cx={cx} cy={cy} r={r}
               fill="none" stroke="rgba(255,255,255,0.08)"
               strokeWidth={r === 175 ? '0.8' : '0.5'} strokeDasharray="2 6" />
