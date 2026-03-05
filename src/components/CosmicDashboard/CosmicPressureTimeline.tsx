@@ -1,6 +1,8 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { HoraGridHour } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props { hours: HoraGridHour[] }
 
@@ -24,12 +26,17 @@ function formatHour(iso: string): string {
 }
 
 export default function CosmicPressureTimeline({ hours }: Props) {
-  const [tooltip, setTooltip] = useState<number | null>(null);
+  const { active, getHandlers } = useInteractiveSelection<number>();
   const currentIdx = hours.findIndex(h => isCurrentHour(h.startTime, h.endTime));
 
   return (
     <div className="relative w-full">
-      <p className="text-xs text-gray-500 uppercase tracking-widest mb-3 font-medium">Cosmic Pressure Timeline · 24-Hour</p>
+      <div className="flex items-center gap-1.5 mb-3">
+        <p className="text-xs text-gray-500 uppercase tracking-widest font-medium">Cosmic Pressure Timeline · 24-Hour</p>
+        <CosmicInfoTooltip label="Timeline color coding info">
+          {COSMIC_TOOLTIPS.nodeUltraAligned.text}
+        </CosmicInfoTooltip>
+      </div>
 
       <div className="relative flex w-full h-14 rounded-xl overflow-visible border border-gray-800">
         {hours.map((h, i) => {
@@ -40,9 +47,8 @@ export default function CosmicPressureTimeline({ hours }: Props) {
           return (
             <div
               key={i}
-              className={`relative flex-1 ${style.bg} border-r border-r-black/20 cursor-pointer transition-all duration-200 hover:brightness-125`}
-              onMouseEnter={() => setTooltip(i)}
-              onMouseLeave={() => setTooltip(null)}
+              className={`relative flex-1 ${style.bg} border-r border-r-black/20 cursor-pointer transition-all duration-200 hover:brightness-125 ${active === i ? 'ring-2 ring-white/60 z-20' : ''}`}
+              {...getHandlers(i)}
             >
               {isBestWindow && (
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"
@@ -68,11 +74,10 @@ export default function CosmicPressureTimeline({ hours }: Props) {
         })}
       </div>
 
-      {tooltip !== null && (
-        <div className="absolute z-50 top-full mt-2 bg-gray-900 border border-gray-700 rounded-xl p-3 text-xs shadow-xl w-56 pointer-events-none"
-          style={{ left: `${(tooltip / hours.length) * 100}%`, transform: 'translateX(-50%)' }}>
+      {active !== null && (
+        <div className="mt-2 bg-gray-900 border border-gray-700 rounded-xl p-3 text-xs shadow-xl">
           {(() => {
-            const h = hours[tooltip];
+            const h = hours[active];
             const style = NODE_STYLES[h.nodeType] ?? NODE_STYLES['U_NODE'];
             return (
               <>

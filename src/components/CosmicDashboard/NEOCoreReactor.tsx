@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { NEOScore } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props { neoScore: NEOScore }
 
@@ -27,6 +30,7 @@ export default function NEOCoreReactor({ neoScore }: Props) {
   const totalFactors = factors.length;
   const gapDeg = 3;
   const arcPerSegment = (300 - gapDeg * totalFactors) / totalFactors;
+  const [expandedFactor, setExpandedFactor] = useState<number | null>(null);
 
   return (
     <div className="flex flex-col items-center">
@@ -90,13 +94,41 @@ export default function NEOCoreReactor({ neoScore }: Props) {
         </text>
       </svg>
 
-      <div className="w-full mt-2 space-y-1.5 max-h-48 overflow-y-auto">
-        {factors.map((f) => (
-          <div key={f.id} className="flex items-start gap-2 text-xs group">
+      <div className="flex items-center gap-1.5 mt-1">
+        <span className="text-xs font-semibold" style={{ color: theme.stroke }}>{theme.label}</span>
+        <CosmicInfoTooltip label="NEO classification info">
+          {COSMIC_TOOLTIPS.neoClassification.text}
+        </CosmicInfoTooltip>
+      </div>
+
+      <div className="flex items-center gap-1.5 mt-3 mb-1">
+        <span className="text-[10px] text-gray-500 uppercase tracking-widest font-medium">NEO Factors</span>
+        <CosmicInfoTooltip label="NEO score info" topic={COSMIC_TOOLTIPS.neoScore.topic}>
+          {COSMIC_TOOLTIPS.neoScore.text}
+        </CosmicInfoTooltip>
+      </div>
+
+      <div className="w-full space-y-1.5 max-h-48 overflow-y-auto">
+        {factors.map((f, i) => (
+          <div
+            key={f.id}
+            className="flex items-start gap-2 text-xs cursor-pointer"
+            onClick={() => setExpandedFactor(prev => prev === i ? null : i)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setExpandedFactor(prev => prev === i ? null : i);
+              }
+            }}
+            tabIndex={0}
+            role="button"
+          >
             <span className={`mt-0.5 flex-shrink-0 w-3 h-3 rounded-full ${f.score === 1 ? 'bg-emerald-400' : 'bg-red-400/50'}`} />
             <div>
               <span className={`font-medium ${f.score === 1 ? 'text-white' : 'text-gray-500'}`}>{f.name}</span>
-              <p className="text-gray-600 leading-tight hidden group-hover:block">{f.reasoning}</p>
+              {expandedFactor === i && (
+                <p className="text-gray-600 leading-tight">{f.reasoning}</p>
+              )}
             </div>
           </div>
         ))}
