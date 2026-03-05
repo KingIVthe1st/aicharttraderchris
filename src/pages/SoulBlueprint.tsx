@@ -20,7 +20,7 @@ export default function SoulBlueprint() {
 
     try {
       const response = await apiClient.post("/soul-blueprint", data);
-      setBlueprint(response.data);
+      setBlueprint(response.data.blueprint);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "Failed to create Soul Blueprint.";
