@@ -1,6 +1,8 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { NEOFactor } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props { factors: NEOFactor[]; total: number }
 
@@ -10,7 +12,7 @@ function polarToXY(cx: number, cy: number, r: number, angleDeg: number) {
 }
 
 export default function ConstellationRing({ factors, total: _total }: Props) {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const { active: hoveredIdx, getHandlers } = useInteractiveSelection<number>();
   const cx = 220, cy = 220, ringR = 170, nodeR = 10;
   const n = factors.length;
 
@@ -24,7 +26,12 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
 
   return (
     <div className="relative w-full">
-      <p className="text-xs text-gray-500 uppercase tracking-widest mb-4 font-medium text-center">17-Factor Constellation Ring</p>
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <p className="text-xs text-gray-500 uppercase tracking-widest font-medium">17-Factor Constellation Ring</p>
+        <CosmicInfoTooltip label="What are the constellation factors?">
+          {COSMIC_TOOLTIPS.constellationFactor.text}
+        </CosmicInfoTooltip>
+      </div>
 
       <div className="relative flex justify-center">
         <svg width="440" height="440" viewBox="0 0 440 440" className="w-full max-w-[440px]"
@@ -63,9 +70,9 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
 
             return (
               <g key={f.id}
-                onMouseEnter={() => setHoveredIdx(i)}
-                onMouseLeave={() => setHoveredIdx(null)}
-                className="cursor-pointer">
+                {...getHandlers(i)}
+                className="cursor-pointer"
+                style={{ outline: 'none' }}>
                 {passed && (
                   <motion.circle cx={pos.x} cy={pos.y} r={nodeR + 6}
                     fill="rgba(139,122,255,0.1)"
@@ -112,17 +119,18 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
           <text x={cx} y={cy + 22} textAnchor="middle" fontSize="8" fill="rgba(255,255,255,0.3)">FACTORS</text>
         </svg>
 
-        {hoveredIdx !== null && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 bg-gray-900 border border-gray-700 rounded-xl p-4 text-sm shadow-xl w-72 pointer-events-none z-10">
-            <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2 h-2 rounded-full ${factors[hoveredIdx].score === 1 ? 'bg-purple-400' : 'bg-red-400'}`} />
-              <span className="text-white font-bold">{factors[hoveredIdx].name}</span>
-            </div>
-            <p className="text-gray-400 text-xs leading-relaxed">{factors[hoveredIdx].reasoning}</p>
-          </motion.div>
-        )}
       </div>
+
+      {hoveredIdx !== null && (
+        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+          className="mt-3 bg-gray-900 border border-gray-700 rounded-xl p-4 text-sm w-full max-w-md mx-auto">
+          <div className="flex items-center gap-2 mb-1">
+            <span className={`w-2 h-2 rounded-full ${factors[hoveredIdx].score === 1 ? 'bg-purple-400' : 'bg-red-400'}`} />
+            <span className="text-white font-bold">{factors[hoveredIdx].name}</span>
+          </div>
+          <p className="text-gray-400 text-xs leading-relaxed">{factors[hoveredIdx].reasoning}</p>
+        </motion.div>
+      )}
     </div>
   );
 }

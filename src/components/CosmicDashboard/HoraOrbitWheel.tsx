@@ -1,6 +1,8 @@
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import type { HoraGridHour } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props { hours: HoraGridHour[] }
 
@@ -29,7 +31,7 @@ function wedgePath(cx: number, cy: number, rInner: number, rOuter: number, start
 }
 
 export default function HoraOrbitWheel({ hours }: Props) {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const { active: hoveredIdx, getHandlers } = useInteractiveSelection<number>();
   const cx = 200, cy = 200;
   const outerR = 175, midR = 140, innerR = 105, coreR = 85;
   const totalHours = hours.length;
@@ -41,6 +43,12 @@ export default function HoraOrbitWheel({ hours }: Props) {
 
   return (
     <div className="relative flex flex-col items-center w-full">
+      <div className="flex items-center gap-2 mb-2">
+        <p className="text-xs text-gray-500 uppercase tracking-widest font-medium">Hora Orbit Wheel</p>
+        <CosmicInfoTooltip label="What are the hora rings?" topic={COSMIC_TOOLTIPS.horaRings.topic}>
+          {COSMIC_TOOLTIPS.horaRings.text}
+        </CosmicInfoTooltip>
+      </div>
       <div className="relative w-full max-w-[420px] mx-auto rounded-2xl overflow-hidden" style={{ aspectRatio: '1' }}>
         <div
           className="absolute inset-0 bg-cover bg-center opacity-15"
@@ -86,9 +94,9 @@ export default function HoraOrbitWheel({ hours }: Props) {
                 fill={color}
                 opacity={isCurrent || isHovered ? 0.9 : 0.35}
                 filter={isCurrent ? 'url(#hora-glow)' : undefined}
-                onMouseEnter={() => setHoveredIdx(i)}
-                onMouseLeave={() => setHoveredIdx(null)}
+                {...getHandlers(i)}
                 className="cursor-pointer"
+                style={{ outline: 'none' }}
                 initial={{ scale: 0.8 }}
                 animate={{ opacity: isCurrent || isHovered ? 0.9 : 0.35 }}
                 transition={{ duration: 0.3, delay: i * 0.02 }}
@@ -150,7 +158,7 @@ export default function HoraOrbitWheel({ hours }: Props) {
           ) : (
             <>
               <text x={cx} y={cy - 12} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.4)">HORA WHEEL</text>
-              <text x={cx} y={cy + 6} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)">Hover a segment</text>
+              <text x={cx} y={cy + 6} textAnchor="middle" fontSize="9" fill="rgba(255,255,255,0.3)">Tap a segment</text>
             </>
           )}
         </svg>
