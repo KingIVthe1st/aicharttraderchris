@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { MoonPhase } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props {
   moonPhase: MoonPhase;
@@ -107,7 +109,12 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
 
           {/* Lunar Month Arc */}
           <div className="rounded-xl border border-indigo-500/20 bg-indigo-950/40 p-4 flex flex-col items-center">
-            <p className="text-indigo-300 text-[10px] uppercase tracking-widest mb-3 font-bold">Lunar Month</p>
+            <div className="flex items-center gap-1 mb-3">
+              <p className="text-indigo-300 text-[10px] uppercase tracking-widest font-bold">Lunar Month</p>
+              <CosmicInfoTooltip label="About Lunar Month">
+                <p>{COSMIC_TOOLTIPS.lunarArc.text}</p>
+              </CosmicInfoTooltip>
+            </div>
             <svg viewBox="0 0 160 160" className="w-40 h-40">
               <defs>
                 <filter id="arcGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
@@ -148,13 +155,34 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
               <text x="80" y="22" textAnchor="middle" fontSize="18" fill={MERCURY_STATUS_STYLES[mercury.status].color}>☿</text>
               <text x="80" y="59" textAnchor="middle" fontSize="14" fill="#F6C453">☉</text>
             </svg>
-            <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase mt-1 ${MERCURY_STATUS_STYLES[mercury.status].bg}`}>
-              {mercury.status === 'retrograde' && (
-                <motion.span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"
-                  animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} />
-              )}
-              ☿ {MERCURY_STATUS_STYLES[mercury.status].label}
+            <div className="flex items-center gap-1 mt-1">
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border text-[10px] font-bold uppercase ${MERCURY_STATUS_STYLES[mercury.status].bg}`}>
+                {mercury.status === 'retrograde' && (
+                  <motion.span className="w-1.5 h-1.5 rounded-full bg-red-400 inline-block"
+                    animate={{ opacity: [1, 0, 1] }} transition={{ duration: 1, repeat: Infinity }} />
+                )}
+                ☿ {MERCURY_STATUS_STYLES[mercury.status].label}
+              </div>
+              <CosmicInfoTooltip label="About Mercury status">
+                <p>{COSMIC_TOOLTIPS.mercuryStatus.text}</p>
+              </CosmicInfoTooltip>
             </div>
+            {mercury.status === 'pre-shadow' && (
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-amber-400 text-[9px] font-medium">Pre-shadow active</span>
+                <CosmicInfoTooltip label="About Pre-Shadow phase">
+                  <p>{COSMIC_TOOLTIPS.preShadow.text}</p>
+                </CosmicInfoTooltip>
+              </div>
+            )}
+            {mercury.status === 'post-shadow' && (
+              <div className="flex items-center gap-1 mt-1">
+                <span className="text-amber-400 text-[9px] font-medium">Post-shadow active</span>
+                <CosmicInfoTooltip label="About Post-Shadow phase">
+                  <p>{COSMIC_TOOLTIPS.postShadow.text}</p>
+                </CosmicInfoTooltip>
+              </div>
+            )}
             <p className="text-gray-400 text-[10px] mt-2">
               <span className="text-white font-mono font-bold">{mercury.daysToNext}d</span> until {mercury.nextPhase}
             </p>
@@ -162,7 +190,12 @@ export default function MacroTimeCycles({ moonPhase, className = '' }: Props) {
 
           {/* Weekly Rhythm */}
           <div className="rounded-xl border border-purple-500/20 bg-purple-950/40 p-4">
-            <p className="text-purple-300 text-[10px] uppercase tracking-widest mb-3 font-bold text-center">Weekly Rhythm</p>
+            <div className="flex items-center justify-center gap-1 mb-3">
+              <p className="text-purple-300 text-[10px] uppercase tracking-widest font-bold">Weekly Rhythm</p>
+              <CosmicInfoTooltip label="About Weekly Rhythm">
+                <p>{COSMIC_TOOLTIPS.weeklyRhythm.text}</p>
+              </CosmicInfoTooltip>
+            </div>
             <div className="grid grid-cols-7 gap-1">
               {DAY_NAMES_SHORT.map((day, i) => {
                 const ruler = DAY_RULERS[i];
