@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import type { PlanetaryHourMap, Planet } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props {
   planetaryHours: PlanetaryHourMap;
@@ -67,6 +70,7 @@ function getHourRelationship(hourPlanet: string, rulerPlanet: string): 'ally' | 
 
 export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler }: Props) {
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const { active, getHandlers } = useInteractiveSelection<number>();
 
   useEffect(() => {
     const id = setInterval(() => setNowMs(Date.now()), 60000);
@@ -138,6 +142,19 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
   const outerR = 175, midR = 140;
   const wedgeDeg = 360 / 24;
 
+  // When a wedge is hovered/selected, show its details in the tactical panel
+  const displayPlanet = active !== null && allHours[active] ? allHours[active].planet : currentPlanet;
+  const displayRel = active !== null && allHours[active]
+    ? getHourRelationship(allHours[active].planet, planetaryRuler)
+    : currentRel;
+
+  // Pick the right tooltip based on the current/displayed hour status
+  const hourStatusTooltip =
+    displayRel === 'ally' ? COSMIC_TOOLTIPS.allyHour :
+    displayRel === 'enemy' ? COSMIC_TOOLTIPS.enemyHour :
+    displayRel === 'self' ? COSMIC_TOOLTIPS.selfHour :
+    COSMIC_TOOLTIPS.neutralHour;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -155,6 +172,7 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
           <h3 className="text-white font-bold text-sm uppercase tracking-widest">Planetary Command Center</h3>
           <div className="ml-auto flex items-center gap-1.5 px-2 py-1 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 text-[10px] font-bold">
             {PLANET_GLYPHS[planetaryHours.dayRuler]} {planetaryHours.dayRuler} Day
+            <CosmicInfoTooltip label="Day ruler info">{COSMIC_TOOLTIPS.dayRuler.text}</CosmicInfoTooltip>
           </div>
         </div>
 
@@ -185,25 +203,27 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
                 const bg = WEDGE_BG[rel];
                 const labelPos = polarToXY(cx, cy, (outerR + midR) / 2, midDeg);
 
+                const isActive = active === i;
+
                 return (
-                  <g key={i}>
+                  <g key={i} {...getHandlers(i)} className="cursor-pointer" style={{ outline: 'none' }}>
                     <motion.path
                       d={wedgePath(cx, cy, midR, outerR, startDeg, endDeg)}
-                      fill={isCurrent ? color : bg}
+                      fill={isCurrent || isActive ? color : bg}
                       stroke={color}
-                      strokeWidth={isCurrent ? 2 : 0.5}
-                      opacity={isPast ? 0.3 : 1}
+                      strokeWidth={isCurrent || isActive ? 2 : 0.5}
+                      opacity={isPast && !isActive ? 0.3 : 1}
                       filter={rel === 'ally' && !isPast ? 'url(#cmdAllyGlow)' : rel === 'enemy' && !isPast ? 'url(#cmdEnemyGlow)' : undefined}
-                      animate={isCurrent ? { opacity: [1, 0.7, 1] } : undefined}
-                      transition={isCurrent ? { duration: 1.5, repeat: Infinity } : undefined}
+                      animate={isCurrent && !isActive ? { opacity: [1, 0.7, 1] } : undefined}
+                      transition={isCurrent && !isActive ? { duration: 1.5, repeat: Infinity } : undefined}
                     />
                     {/* Planet glyph label */}
                     <text
                       x={labelPos.x} y={labelPos.y}
                       textAnchor="middle" dominantBaseline="middle"
                       fontSize="9"
-                      fill={isPast ? '#374151' : color}
-                      opacity={isPast ? 0.5 : 0.85}
+                      fill={isPast && !isActive ? '#374151' : color}
+                      opacity={isPast && !isActive ? 0.5 : 0.85}
                     >
                       {PLANET_GLYPHS[h.planet]}
                     </text>
@@ -244,27 +264,35 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
           <div className="w-full lg:w-56 flex flex-col gap-3">
             {/* Current hour status */}
             <div className={`rounded-xl border p-3 text-center ${
-              currentRel === 'ally' ? 'border-cyan-500/40 bg-cyan-500/10' :
-              currentRel === 'enemy' ? 'border-red-500/40 bg-red-500/10' :
-              currentRel === 'self' ? 'border-yellow-500/40 bg-yellow-500/10' :
+              displayRel === 'ally' ? 'border-cyan-500/40 bg-cyan-500/10' :
+              displayRel === 'enemy' ? 'border-red-500/40 bg-red-500/10' :
+              displayRel === 'self' ? 'border-yellow-500/40 bg-yellow-500/10' :
               'border-gray-500/30 bg-gray-500/10'
             }`}>
-              <p className="text-gray-400 text-[9px] uppercase mb-1">Current Hour</p>
-              <p className="text-2xl">{PLANET_GLYPHS[currentPlanet]}</p>
-              <p className="text-white font-bold text-xs">{currentPlanet}</p>
-              <p className={`text-[10px] font-black uppercase mt-1 ${
-                currentRel === 'ally' ? 'text-cyan-400' :
-                currentRel === 'enemy' ? 'text-red-400' :
-                currentRel === 'self' ? 'text-yellow-400' :
-                'text-gray-400'
-              }`}>
-                {currentRel === 'self' ? '★ YOUR RULER' : currentRel.toUpperCase()}
+              <p className="text-gray-400 text-[9px] uppercase mb-1">
+                {active !== null ? 'Selected Hour' : 'Current Hour'}
               </p>
+              <p className="text-2xl">{PLANET_GLYPHS[displayPlanet]}</p>
+              <p className="text-white font-bold text-xs">{displayPlanet}</p>
+              <div className="flex items-center justify-center gap-1 mt-1">
+                <p className={`text-[10px] font-black uppercase ${
+                  displayRel === 'ally' ? 'text-cyan-400' :
+                  displayRel === 'enemy' ? 'text-red-400' :
+                  displayRel === 'self' ? 'text-yellow-400' :
+                  'text-gray-400'
+                }`}>
+                  {displayRel === 'self' ? '★ YOUR RULER' : displayRel.toUpperCase()}
+                </p>
+                <CosmicInfoTooltip label="Hour status info" topic={hourStatusTooltip.topic}>{hourStatusTooltip.text}</CosmicInfoTooltip>
+              </div>
             </div>
 
             {/* Next ally countdown */}
             <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-3">
-              <p className="text-gray-400 text-[9px] uppercase mb-1">Next Ally Hour</p>
+              <p className="text-gray-400 text-[9px] uppercase mb-1 flex items-center gap-1">
+                Next Ally Hour
+                <CosmicInfoTooltip label="Next ally hour info">{COSMIC_TOOLTIPS.nextAllyCountdown.text}</CosmicInfoTooltip>
+              </p>
               <p className="text-emerald-300 font-mono font-bold text-xl">{nextAllyStr}</p>
               {nextAllyHour && (
                 <p className="text-gray-400 text-[10px] mt-0.5">
@@ -305,7 +333,10 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
 
             {/* Day wisdom */}
             <div className="rounded-xl border border-amber-500/20 bg-amber-950/30 p-3">
-              <p className="text-amber-400 text-[9px] uppercase mb-1 font-bold">Day Wisdom</p>
+              <p className="text-amber-400 text-[9px] uppercase mb-1 font-bold flex items-center gap-1">
+                Day Wisdom
+                <CosmicInfoTooltip label="Day wisdom info">{COSMIC_TOOLTIPS.dayWisdom.text}</CosmicInfoTooltip>
+              </p>
               <p className="text-gray-300 text-[10px] leading-relaxed italic">
                 {DAY_WISDOM[planetaryHours.dayRuler] || ''}
               </p>
