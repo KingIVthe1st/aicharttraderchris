@@ -243,6 +243,13 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
                     <feGaussianBlur stdDeviation="2" result="b" />
                     <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
                   </filter>
+                  <filter id="wedge-hover-glow">
+                    <feGaussianBlur stdDeviation="4" result="b" />
+                    <feMerge><feMergeNode in="b" /><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+                  </filter>
+                  <filter id="glyph-shadow">
+                    <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor="rgba(0,0,0,0.6)" />
+                  </filter>
                 </defs>
 
                 {/* Outer rim circle */}
@@ -281,9 +288,10 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
                         d={basePath}
                         fill={isCurrent || isActive ? accent : relFill}
                         stroke={accent}
-                        strokeWidth={isCurrent || isActive ? 2 : 0.5}
-                        opacity={isPast && !isActive ? 0.3 : 1}
+                        strokeWidth={isActive ? 2.5 : isCurrent ? 2 : 0.5}
+                        opacity={isPast && !isActive ? 0.3 : isActive ? 1 : 1}
                         filter={
+                          isActive ? 'url(#wedge-hover-glow)' :
                           rel === 'ally' && !isPast ? 'url(#wedge-ally-glow)' :
                           rel === 'enemy' && !isPast ? 'url(#wedge-enemy-glow)' :
                           undefined
@@ -298,20 +306,35 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
                             ? { duration: 1.5, repeat: Infinity }
                             : undefined
                         }
-                        style={
-                          isUpcomingAlly && !isActive
+                        style={{
+                          ...(isUpcomingAlly && !isActive
                             ? { animation: 'pcc-ally-breathe 3s ease-in-out infinite' }
-                            : undefined
-                        }
+                            : {}),
+                          ...(isActive
+                            ? { transform: `scale(1.04)`, transformOrigin: `${labelPos.x}px ${labelPos.y}px` }
+                            : {}),
+                        }}
                       />
+                      {/* Bright ring for selected wedge */}
+                      {isActive && (
+                        <path
+                          d={basePath}
+                          fill="none"
+                          stroke={accent}
+                          strokeWidth="3"
+                          opacity={0.9}
+                          filter="url(#wedge-hover-glow)"
+                        />
+                      )}
                       {/* Planet glyph label */}
                       <text
                         x={labelPos.x} y={labelPos.y}
                         textAnchor="middle" dominantBaseline="middle"
-                        fontSize="10"
+                        fontSize="14"
                         fill={isPast && !isActive ? '#475569' : accent}
-                        opacity={isPast && !isActive ? 0.5 : 0.9}
+                        opacity={isPast && !isActive ? 0.5 : 0.95}
                         fontWeight="bold"
+                        filter={isPast && !isActive ? undefined : 'url(#glyph-shadow)'}
                       >
                         {PLANET_GLYPHS[h.planet]}
                       </text>
@@ -349,13 +372,13 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
                 </g>
 
                 {/* Center: day ruler sigil + name */}
-                <text x={cx} y={cy - 14} textAnchor="middle" fontSize="34" fill={PLANET_COLORS[planetaryHours.dayRuler]} fontWeight="bold">
+                <text x={cx} y={cy - 12} textAnchor="middle" fontSize="42" fill={PLANET_COLORS[planetaryHours.dayRuler]} fontWeight="bold">
                   {PLANET_GLYPHS[planetaryHours.dayRuler]}
                 </text>
-                <text x={cx} y={cy + 10} textAnchor="middle" fill="white" fontSize="10" fontWeight="bold" letterSpacing="0.15em">
+                <text x={cx} y={cy + 14} textAnchor="middle" fill="white" fontSize="11" fontWeight="bold" letterSpacing="0.15em">
                   {planetaryHours.dayRuler.toUpperCase()}
                 </text>
-                <text x={cx} y={cy + 24} textAnchor="middle" fill="rgba(255,255,255,0.35)" fontSize="8" letterSpacing="0.2em">
+                <text x={cx} y={cy + 28} textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="11" letterSpacing="0.2em">
                   DAY RULER
                 </text>
               </svg>
@@ -365,7 +388,7 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
             <div className="lg:w-[40%] flex flex-col gap-3">
               {/* Current status orb + details */}
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
-                <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-2">
+                <p className="text-gray-500 text-[12px] uppercase tracking-widest mb-2">
                   {active !== null ? 'Selected Hour' : 'Current Hour'}
                 </p>
                 <div className="flex items-center gap-3 mb-2">
@@ -377,18 +400,30 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
                   />
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-2xl" style={{ color: PLANET_COLORS[displayPlanet] }}>{PLANET_GLYPHS[displayPlanet]}</span>
+                  <span className="text-3xl" style={{ color: PLANET_COLORS[displayPlanet] }}>{PLANET_GLYPHS[displayPlanet]}</span>
                   <div>
-                    <p className="text-white font-bold text-sm">{displayPlanet}</p>
-                    <div className="flex items-center gap-1">
-                      <p className={`text-[10px] font-black uppercase ${
-                        displayRel === 'ally' ? 'text-cyan-400' :
-                        displayRel === 'enemy' ? 'text-red-400' :
-                        displayRel === 'self' ? 'text-yellow-400' :
-                        'text-gray-400'
-                      }`}>
+                    <p className="text-white font-bold text-base">{displayPlanet}</p>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`text-sm font-black uppercase tracking-wide px-2 py-0.5 rounded ${
+                          displayRel === 'enemy'
+                            ? 'text-red-300 bg-red-500/20 border border-red-500/30'
+                            : displayRel === 'ally'
+                            ? 'text-cyan-300 bg-cyan-500/20 border border-cyan-500/30'
+                            : displayRel === 'self'
+                            ? 'text-yellow-300 bg-yellow-500/20 border border-yellow-500/30'
+                            : 'text-gray-400 bg-gray-500/10 border border-gray-500/20'
+                        }`}
+                        style={
+                          displayRel === 'enemy'
+                            ? { textShadow: '0 0 8px rgba(239,68,68,0.5)' }
+                            : displayRel === 'ally'
+                            ? { textShadow: '0 0 8px rgba(46,197,255,0.5)' }
+                            : undefined
+                        }
+                      >
                         {displayRel === 'self' ? 'YOUR RULER' : displayRel.toUpperCase()}
-                      </p>
+                      </span>
                       <CosmicInfoTooltip label="Hour status info" topic={hourStatusTooltip.topic}>{hourStatusTooltip.text}</CosmicInfoTooltip>
                     </div>
                   </div>
@@ -397,17 +432,27 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
 
               {/* Countdown to next ally */}
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
-                <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-1 flex items-center gap-1">
+                <p className="text-gray-500 text-[12px] uppercase tracking-widest mb-1 flex items-center gap-1">
                   Next Ally Hour
                   <CosmicInfoTooltip label="Next ally hour info">{COSMIC_TOOLTIPS.nextAllyCountdown.text}</CosmicInfoTooltip>
                 </p>
-                <p className={`text-3xl font-mono font-black tabular-nums ${isAllyNow ? 'text-cyan-300' : 'text-white'}`}
-                  style={isAllyNow ? { textShadow: '0 0 20px rgba(46,197,255,0.4), 0 0 40px rgba(46,197,255,0.15)' } : undefined}
+                <p className={`text-4xl font-mono font-black tabular-nums ${isAllyNow ? 'text-cyan-300' : 'text-white'}`}
+                  style={{
+                    textShadow: isAllyNow
+                      ? '0 0 20px rgba(46,197,255,0.5), 0 0 40px rgba(46,197,255,0.25), 0 0 60px rgba(46,197,255,0.1)'
+                      : '0 0 12px rgba(255,255,255,0.15)',
+                    background: isAllyNow
+                      ? 'linear-gradient(135deg, #2EC5FF 0%, #67e8f9 50%, #2EC5FF 100%)'
+                      : 'linear-gradient(135deg, #ffffff 0%, #94a3b8 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    backgroundClip: 'text',
+                  }}
                 >
                   {nextAllyStr}
                 </p>
                 {nextAllyHour && (
-                  <p className="text-gray-500 text-[10px] mt-1 font-mono">
+                  <p className="text-gray-400 text-[11px] mt-1 font-mono">
                     {PLANET_GLYPHS[nextAllyHour.planet]} {new Date(nextAllyHour.startMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
                   </p>
                 )}
@@ -415,7 +460,7 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
 
               {/* Hour breakdown: 3 CosmicDataRow entries */}
               <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
-                <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-1">Hour Breakdown</p>
+                <p className="text-gray-500 text-[12px] uppercase tracking-widest mb-1">Hour Breakdown</p>
                 <CosmicDataRow
                   label="Ally Hours"
                   value={(counts.ally ?? 0) + (counts.self ?? 0)}
@@ -440,16 +485,17 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
               {/* Best windows — up to 5 glass chips */}
               {upcomingBest.length > 0 && (
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3">
-                  <p className="text-gray-500 text-[9px] uppercase tracking-widest mb-2">Best Windows</p>
-                  <div className="flex flex-wrap gap-1.5">
+                  <p className="text-gray-500 text-[12px] uppercase tracking-widest mb-2">Best Windows</p>
+                  <div className="flex flex-wrap gap-2">
                     {upcomingBest.map((h, i) => (
                       <div
                         key={i}
-                        className="bg-white/[0.03] border border-white/[0.06] rounded-lg px-3 py-1.5 flex items-center gap-1.5"
+                        className="bg-white/[0.04] border border-white/[0.08] rounded-lg px-4 py-2 flex items-center gap-2"
+                        style={{ boxShadow: `0 0 12px ${PLANET_COLORS[h.planet]}15, 0 0 4px ${PLANET_COLORS[h.planet]}10` }}
                       >
-                        <span className="text-[13px]" style={{ color: PLANET_COLORS[h.planet] }}>{PLANET_GLYPHS[h.planet]}</span>
-                        <span className="text-white text-[10px] font-medium">{h.planet}</span>
-                        <span className="text-gray-500 text-[9px] font-mono">
+                        <span className="text-sm" style={{ color: PLANET_COLORS[h.planet] }}>{PLANET_GLYPHS[h.planet]}</span>
+                        <span className="text-white text-[12px] font-medium">{h.planet}</span>
+                        <span className="text-gray-400 text-[11px] font-mono">
                           {new Date(h.startMs).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
                         </span>
                       </div>
@@ -461,11 +507,11 @@ export default function PlanetaryCommandCenter({ planetaryHours, planetaryRuler 
               {/* Day wisdom in sunken glass card */}
               <CosmicGlassCard variant="sunken" accentColor="amber" noPadding>
                 <div className="p-3">
-                  <p className="text-amber-400/70 text-[9px] uppercase tracking-widest mb-1 font-bold flex items-center gap-1">
+                  <p className="text-amber-400/70 text-[12px] uppercase tracking-widest mb-1 font-bold flex items-center gap-1">
                     Day Wisdom
                     <CosmicInfoTooltip label="Day wisdom info">{COSMIC_TOOLTIPS.dayWisdom.text}</CosmicInfoTooltip>
                   </p>
-                  <p className="text-gray-400 text-[10px] leading-relaxed italic">
+                  <p className="text-gray-300 text-[13px] leading-relaxed italic">
                     {DAY_WISDOM[planetaryHours.dayRuler] || ''}
                   </p>
                 </div>
