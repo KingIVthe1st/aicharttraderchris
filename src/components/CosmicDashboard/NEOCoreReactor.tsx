@@ -61,8 +61,9 @@ export default function NEOCoreReactor({ neoScore }: Props) {
         <svg width="280" height="280" viewBox="0 0 280 280">
           <defs>
             <filter id={glowFilterId}>
-              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feGaussianBlur stdDeviation="5" result="blur" />
               <feMerge>
+                <feMergeNode in="blur" />
                 <feMergeNode in="blur" />
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
@@ -76,14 +77,14 @@ export default function NEOCoreReactor({ neoScore }: Props) {
           {/* Containment rings */}
           <circle
             cx={cx} cy={cy} r={100}
-            stroke="rgba(255,255,255,0.06)"
+            stroke="rgba(255,255,255,0.08)"
             strokeDasharray="3 6"
             fill="none"
             strokeWidth="1"
           />
           <circle
             cx={cx} cy={cy} r={120}
-            stroke="rgba(255,255,255,0.06)"
+            stroke="rgba(255,255,255,0.08)"
             strokeDasharray="3 6"
             fill="none"
             strokeWidth="1"
@@ -99,13 +100,16 @@ export default function NEOCoreReactor({ neoScore }: Props) {
                 key={f.id}
                 d={arcPath(cx, cy, outerR, startDeg, endDeg)}
                 fill="none"
-                stroke={passed ? theme.stroke : 'rgba(255,255,255,0.05)'}
+                stroke={passed ? theme.stroke : 'rgba(255,255,255,0.08)'}
                 strokeWidth="10"
                 strokeLinecap="round"
                 filter={passed ? `url(#${glowFilterId})` : undefined}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.4, delay: i * 0.04, ease: 'easeOut' }}
+                animate={passed ? { opacity: [0.8, 1, 0.8] } : { opacity: 1 }}
+                transition={passed
+                  ? { opacity: { duration: 4, repeat: Infinity, ease: 'easeInOut' }, delay: i * 0.04 }
+                  : { duration: 0.4, delay: i * 0.04, ease: 'easeOut' }
+                }
               />
             );
           })}
@@ -146,17 +150,18 @@ export default function NEOCoreReactor({ neoScore }: Props) {
             textAnchor="middle"
             dominantBaseline="middle"
             className="font-mono"
-            fontSize="36"
+            fontSize="48"
             fontWeight="900"
             fill={theme.stroke}
             style={{ filter: `drop-shadow(0 0 8px ${theme.stroke})` }}
           >
             {total}
           </text>
-          <text x={cx} y={cy + 16} textAnchor="middle" fontSize="12" fill="rgba(255,255,255,0.35)">
+          <text x={cx} y={cy + 18} textAnchor="middle" fontSize="16" fill="rgba(255,255,255,0.55)">
             /17
           </text>
-          <text x={cx} y={cy + 34} textAnchor="middle" fontSize="10" fill={theme.stroke} fontWeight="600">
+          <text x={cx} y={cy + 36} textAnchor="middle" fontSize="13" fill={theme.stroke} fontWeight="600"
+            letterSpacing="0.12em">
             {theme.label.toUpperCase()}
           </text>
         </svg>
@@ -185,12 +190,12 @@ export default function NEOCoreReactor({ neoScore }: Props) {
             return (
               <div
                 key={f.id}
-                className="bg-white/[0.03] border border-white/[0.04] rounded-lg px-3 py-2 cursor-pointer"
+                className="bg-white/[0.03] border border-white/[0.04] rounded-lg px-3 py-2 cursor-pointer hover:bg-white/[0.05] transition-colors"
                 {...handlers}
               >
                 <div className="flex items-center gap-2 text-xs">
-                  <CosmicStatusOrb status={f.score === 1 ? 'positive' : 'negative'} size="sm" />
-                  <span className={`font-medium ${f.score === 1 ? 'text-white' : 'text-gray-500'}`}>
+                  <CosmicStatusOrb status={f.score === 1 ? 'positive' : 'negative'} size="md" />
+                  <span className={`font-medium text-[12px] ${f.score === 1 ? 'text-white' : 'text-gray-500'}`}>
                     {f.name}
                   </span>
                 </div>
@@ -199,7 +204,7 @@ export default function NEOCoreReactor({ neoScore }: Props) {
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="bg-white/[0.02] rounded-lg p-2 mt-1 text-gray-500 text-xs"
+                    className="bg-white/[0.02] rounded-lg p-2 mt-1 text-gray-500 text-[12px] leading-relaxed"
                   >
                     {f.reasoning}
                   </motion.div>

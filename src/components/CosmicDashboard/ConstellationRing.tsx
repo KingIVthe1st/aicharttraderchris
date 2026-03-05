@@ -58,16 +58,16 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
             style={{ filter: 'drop-shadow(0 0 30px rgba(109,91,255,0.1))' }}>
             <defs>
               <filter id="star-glow-ring">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feMerge><feMergeNode in="blur" /><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
               </filter>
             </defs>
 
             {/* Background grid: two dashed circles */}
             <circle cx={cx} cy={cy} r={ringR} fill="none"
-              stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="4 4" />
+              stroke="rgba(255,255,255,0.06)" strokeWidth="1" strokeDasharray="4 4" />
             <circle cx={cx} cy={cy} r={ringR - 40} fill="none"
-              stroke="rgba(255,255,255,0.02)" strokeWidth="1" strokeDasharray="4 4" />
+              stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="4 4" />
 
             {/* Background grid: 4 radial crosshair lines */}
             {[0, 90, 45, 135].map((angle) => {
@@ -76,7 +76,7 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
               return (
                 <line key={`grid-${angle}`}
                   x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-                  stroke="rgba(255,255,255,0.02)" strokeWidth="1" />
+                  stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
               );
             })}
 
@@ -89,10 +89,10 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
               return (
                 <motion.line key={`line-${idx}`}
                   x1={p1.x} y1={p1.y} x2={p2.x} y2={p2.y}
-                  stroke="rgba(109,91,255,0.2)" strokeWidth="1.2"
+                  stroke="rgba(109,91,255,0.3)" strokeWidth="2"
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: j * 0.05 }} />
+                  animate={{ opacity: [0.25, 0.4, 0.25] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: j * 0.05 }} />
               );
             })}
 
@@ -110,12 +110,12 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
                   {passed ? (
                     <>
                       {/* Outer halo */}
-                      <circle cx={pos.x} cy={pos.y} r={8}
-                        fill="rgba(109,91,255,0.15)"
+                      <circle cx={pos.x} cy={pos.y} r={12}
+                        fill="rgba(109,91,255,0.18)"
                         filter="url(#star-glow-ring)" />
                       {/* 6-point star shape */}
                       <motion.path
-                        d={starPath(pos.x, pos.y, isHovered ? 7 : 5)}
+                        d={starPath(pos.x, pos.y, isHovered ? 10 : 8)}
                         fill="white"
                         filter="url(#star-glow-ring)"
                         initial={{ scale: 0 }}
@@ -127,15 +127,15 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
                     </>
                   ) : (
                     /* Failed: simple dim dot */
-                    <motion.circle cx={pos.x} cy={pos.y} r={3}
-                      fill="rgba(239,68,68,0.3)"
+                    <motion.circle cx={pos.x} cy={pos.y} r={4}
+                      fill="rgba(239,130,100,0.35)"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ duration: 0.3, delay: i * 0.04 }}
                       style={{ transformOrigin: `${pos.x}px ${pos.y}px` }} />
                   )}
                   {/* Label */}
-                  <text x={pos.x} y={pos.y + 16} textAnchor="middle" fontSize="7"
+                  <text x={pos.x} y={pos.y + 20} textAnchor="middle" fontSize="10"
                     fill={passed ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)'}>
                     F{i + 1}
                   </text>
@@ -151,12 +151,12 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
             {/* Mini fill ring */}
             <circle cx={cx} cy={cy} r={fillR}
               fill="none"
-              stroke="rgba(109,91,255,0.1)"
-              strokeWidth="3" />
+              stroke="rgba(109,91,255,0.12)"
+              strokeWidth="4" />
             <circle cx={cx} cy={cy} r={fillR}
               fill="none"
               stroke="#6D5BFF"
-              strokeWidth="3"
+              strokeWidth="4"
               strokeLinecap="round"
               strokeDasharray={`${pct * fillCirc} ${fillCirc}`}
               transform={`rotate(-90 ${cx} ${cy})`}
@@ -164,17 +164,17 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
 
             {/* Score */}
             <text x={cx} y={cy - 8} textAnchor="middle"
-              fontSize="32" fontWeight="900" fontFamily="monospace"
+              fontSize="40" fontWeight="900" fontFamily="monospace"
               fill="#8B7AFF"
               style={{ filter: 'drop-shadow(0 0 10px rgba(109,91,255,0.5))' }}>
               {passedCount}
             </text>
-            <text x={cx} y={cy + 10} textAnchor="middle" fontSize="10" fill="rgba(255,255,255,0.4)">
+            <text x={cx} y={cy + 12} textAnchor="middle" fontSize="14" fill="rgba(255,255,255,0.5)">
               / {n}
             </text>
             {/* Classification label */}
-            <text x={cx} y={cy + 26} textAnchor="middle" fontSize="8"
-              fill="rgba(255,255,255,0.3)" letterSpacing="0.1em">
+            <text x={cx} y={cy + 30} textAnchor="middle" fontSize="13"
+              fill="rgba(255,255,255,0.4)" letterSpacing="0.12em">
               {passedCount >= 14 ? 'STRONG' : passedCount >= 10 ? 'MODERATE' : passedCount >= 6 ? 'MIXED' : 'WEAK'}
             </text>
           </svg>
@@ -185,10 +185,13 @@ export default function ConstellationRing({ factors, total: _total }: Props) {
           <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
             className="mt-3 bg-gray-900/80 backdrop-blur-sm border border-white/[0.06] rounded-xl p-4 text-sm w-full max-w-md mx-auto">
             <div className="flex items-center gap-2 mb-1">
-              <span className={`w-2 h-2 rounded-full ${factors[hoveredIdx].score === 1 ? 'bg-purple-400' : 'bg-red-400'}`} />
-              <span className="text-white font-bold">{factors[hoveredIdx].name}</span>
+              <span className={`w-2.5 h-2.5 rounded-full shadow-sm ${factors[hoveredIdx].score === 1 ? 'bg-purple-400 shadow-purple-400/50' : 'bg-red-400 shadow-red-400/50'}`} />
+              <span className="text-white font-bold text-[13px]">{factors[hoveredIdx].name}</span>
+              <span className={`text-[11px] font-medium ${factors[hoveredIdx].score === 1 ? 'text-purple-400' : 'text-red-400'}`}>
+                {factors[hoveredIdx].score === 1 ? 'PASS' : 'FAIL'}
+              </span>
             </div>
-            <p className="text-gray-400 text-xs leading-relaxed">{factors[hoveredIdx].reasoning}</p>
+            <p className="text-gray-400 text-[12px] leading-relaxed">{factors[hoveredIdx].reasoning}</p>
           </motion.div>
         )}
       </div>
