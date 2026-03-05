@@ -71,9 +71,19 @@ function pct(minutes: number) {
   return Math.max(0, Math.min(100, ((minutes - MARKET_START) / MARKET_DURATION) * 100));
 }
 
+/* ── time labels every 2 hours (plus open/close) ── */
+const TIME_LABELS = [
+  { label: '9:30',  min: MARKET_START },
+  { label: '11:30', min: 11 * 60 + 30 },
+  { label: '1:30',  min: 13 * 60 + 30 },
+  { label: '3:30',  min: 15 * 60 + 30 },
+  { label: '4:00',  min: MARKET_END },
+];
+
 export default function IntradayTimeCycles({ horaGrid, planetaryHours: _planetaryHours, bestTradingWindows }: Props) {
   void _planetaryHours;
   const { active, getHandlers } = useInteractiveSelection<number>();
+  const timelineRef = useRef<HTMLDivElement>(null);
 
   /* ── live clock via useAnimationFrame ── */
   const [nowMinutes, setNowMinutes] = useState(() => {
@@ -132,6 +142,15 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours: _planetar
     return pts;
   }, [marketHours]);
 
+  /* ── compute selected segment position for connecting arrow ── */
+  const activeSegmentPct = useMemo(() => {
+    if (active === null || !marketHours[active]) return null;
+    const h = marketHours[active];
+    const startMin = Math.max(timeToMinutes(h.startTime), MARKET_START);
+    const endMin = Math.min(timeToMinutes(h.endTime), MARKET_END);
+    return (pct(startMin) + pct(endMin)) / 2;
+  }, [active, marketHours]);
+
   return (
     <CosmicGlassCard accentColor="aurora">
       {/* ── header ── */}
@@ -155,11 +174,22 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours: _planetar
         </div>
       </div>
 
-      {/* ── time labels ── */}
-      <div className="flex justify-between text-[9px] text-gray-500 font-mono mb-1 px-1">
-        {['9:30', '10:30', '11:30', '12:30', '1:30', '2:30', '3:30', '4:00'].map(t => (
-          <span key={t}>{t}</span>
-        ))}
+      {/* ── time labels with tick marks ── */}
+      <div className="relative mb-1 px-1" style={{ height: 24 }}>
+        {TIME_LABELS.map(({ label, min }) => {
+          const left = pct(min);
+          return (
+            <div
+              key={label}
+              className="absolute flex flex-col items-center"
+              style={{ left: `${left}%`, transform: 'translateX(-50%)' }}
+            >
+              <span className="text-[11px] text-gray-400 font-mono leading-none">{label}</span>
+              {/* tick mark connecting label to timeline */}
+              <div className="w-px h-[6px] mt-[2px] bg-white/[0.12]" />
+            </div>
+          );
+        })}
       </div>
 
       {/* ── planet orbit line ── */}
@@ -170,89 +200,143 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours: _planetar
             className="absolute -top-2.5 flex flex-col items-center"
             style={{ left: `${pt.left}%`, transform: 'translateX(-50%)' }}
           >
-            <span className="text-[9px] leading-none" style={{ color: pt.color }}>{pt.glyph}</span>
+            <span className="text-[10px] leading-none" style={{ color: pt.color }}>{pt.glyph}</span>
             <div className="w-px h-1 mt-px" style={{ background: pt.color, opacity: 0.3 }} />
           </div>
         ))}
       </div>
 
-      {/* ── timeline band ── */}
-      <div className="relative h-12 rounded-full overflow-hidden bg-white/[0.03] border border-white/[0.06]">
-        {marketHours.map((h, i) => {
-          const startMin = Math.max(timeToMinutes(h.startTime), MARKET_START);
-          const endMin   = Math.min(timeToMinutes(h.endTime), MARKET_END);
-          const left     = pct(startMin);
-          const width    = pct(endMin) - left;
-          const bgColor  = NODE_BG_60[h.nodeType] || NODE_BG_60.U_NODE;
-          const isUltra  = h.nodeType === 'ULTRA_ALIGNED';
+      {/* ── timeline band (sunken track with segmented pills) ── */}
+      <div
+        ref={timelineRef}
+        className="relative h-14 rounded-full bg-black/30 p-[3px]"
+        style={{ boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.4)' }}
+      >
+        {/* inner track container with gaps between segments */}
+        <div className="relative h-full w-full flex gap-[2px] rounded-full overflow-hidden">
+          {marketHours.map((h, i) => {
+            const startMin = Math.max(timeToMinutes(h.startTime), MARKET_START);
+            const endMin   = Math.min(timeToMinutes(h.endTime), MARKET_END);
+            const width    = ((endMin - startMin) / MARKET_DURATION) * 100;
+            const bgColor  = NODE_BG_60[h.nodeType] || NODE_BG_60.U_NODE;
+            const isUltra  = h.nodeType === 'ULTRA_ALIGNED';
+            const isActive = active === i;
 
-          return (
-            <div
-              key={i}
-              className={`absolute top-0 bottom-0 cursor-pointer border-r border-black/30 transition-all ${
-                active === i ? 'ring-1 ring-white/40 z-[5]' : ''
-              }`}
-              style={{
-                left: `${left}%`,
-                width: `${Math.max(width, 0.5)}%`,
-                background: bgColor,
-              }}
-              {...getHandlers(i)}
-            >
-              {/* gold shimmer overlay for ULTRA_ALIGNED */}
-              {isUltra && (
-                <div
-                  className="absolute inset-0 animate-shimmer"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent, rgba(246,196,83,0.25), transparent)',
-                    backgroundSize: '200% 100%',
-                  }}
-                />
-              )}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={i}
+                className={`relative h-full cursor-pointer transition-all rounded-[3px] ${
+                  isActive ? 'ring-2 ring-white/50 z-[5] brightness-125' : 'ring-1 ring-white/[0.06]'
+                }`}
+                style={{
+                  flex: `0 0 calc(${Math.max(width, 0.5)}% - 2px)`,
+                  background: bgColor,
+                }}
+                {...getHandlers(i)}
+              >
+                {/* gold shimmer overlay for ULTRA_ALIGNED */}
+                {isUltra && (
+                  <div
+                    className="absolute inset-0 animate-shimmer rounded-[3px]"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, rgba(246,196,83,0.25), transparent)',
+                      backgroundSize: '200% 100%',
+                    }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
 
-        {/* ── current time cursor ── */}
+        {/* ── current time cursor (dramatic glow) ── */}
         {isMarketOpen && (
           <div
-            className="absolute w-[3px] top-[-8px] bottom-[-8px] z-10 pointer-events-none"
+            className="absolute z-10 pointer-events-none"
             style={{
               left: `${nowPct}%`,
+              top: '-10px',
+              bottom: '-10px',
               transform: 'translateX(-50%)',
-              background: 'linear-gradient(to bottom, transparent, #2EC5FF, transparent)',
-              boxShadow: '0 0 8px rgba(46,197,255,0.6)',
             }}
-          />
+          >
+            {/* diamond pointer at top */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2"
+              style={{
+                top: 0,
+                width: 0,
+                height: 0,
+                borderLeft: '5px solid transparent',
+                borderRight: '5px solid transparent',
+                borderTop: '6px solid #2EC5FF',
+                filter: 'drop-shadow(0 0 4px rgba(46,197,255,0.8))',
+              }}
+            />
+            {/* main cursor line */}
+            <div
+              className="absolute left-1/2 -translate-x-1/2"
+              style={{
+                top: '6px',
+                bottom: 0,
+                width: '4px',
+                borderRadius: '2px',
+                background: 'linear-gradient(to bottom, #2EC5FF, rgba(46,197,255,0.7), transparent)',
+                boxShadow: '0 0 10px 3px rgba(46,197,255,0.5), 0 0 20px 6px rgba(46,197,255,0.2)',
+              }}
+            />
+          </div>
         )}
       </div>
 
-      {/* ── active segment detail ── */}
+      {/* ── active segment detail popup ── */}
       {active !== null && marketHours[active] && (
-        <div className="mt-3 p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] text-xs">
-          <p className="text-white font-bold">
-            {new Date(marketHours[active].startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-            {' \u2013 '}
-            {new Date(marketHours[active].endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
-          </p>
-          <p className="text-gray-400 mt-1">
-            {marketHours[active].tradingGuidance || marketHours[active].nodeType}
-          </p>
+        <div className="relative mt-3">
+          {/* connecting arrow pointing up to the selected segment */}
+          {activeSegmentPct !== null && (
+            <div
+              className="absolute -top-[7px] z-10"
+              style={{
+                left: `${activeSegmentPct}%`,
+                transform: 'translateX(-50%)',
+              }}
+            >
+              <div
+                style={{
+                  width: 0,
+                  height: 0,
+                  borderLeft: '6px solid transparent',
+                  borderRight: '6px solid transparent',
+                  borderBottom: '7px solid rgba(255,255,255,0.06)',
+                }}
+              />
+            </div>
+          )}
+          <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            <p className="text-white font-bold text-[13px]">
+              {new Date(marketHours[active].startTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+              {' \u2013 '}
+              {new Date(marketHours[active].endTime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}
+            </p>
+            <p className="text-gray-400 mt-1 text-[12px] leading-relaxed">
+              {marketHours[active].tradingGuidance || marketHours[active].nodeType}
+            </p>
+          </div>
         </div>
       )}
 
-      {/* ── legend ── */}
+      {/* ── legend (glass pills) ── */}
       <div className="flex flex-wrap items-center gap-2 mt-3">
         {Object.entries(NODE_LABELS).map(([type, label]) => (
           <span
             key={type}
-            className="flex items-center gap-1.5 bg-white/[0.03] rounded-full px-2.5 py-1"
+            className="flex items-center gap-1.5 rounded-full px-3 py-1 bg-white/[0.04] border border-white/[0.06] backdrop-blur-sm"
           >
             <span
-              className="w-2 h-2 rounded-full flex-shrink-0"
+              className="w-2.5 h-2.5 rounded-full flex-shrink-0"
               style={{ background: NODE_COLORS[type] }}
             />
-            <span className="text-[9px] text-gray-400">{label}</span>
+            <span className="text-[11px] text-gray-400">{label}</span>
           </span>
         ))}
         <CosmicInfoTooltip label="Node type color legend">
@@ -264,7 +348,7 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours: _planetar
       {remainingWindows.length > 0 && (
         <div className="mt-4 border-t border-white/[0.06] pt-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
+            <p className="text-[11px] text-gray-400 uppercase tracking-wider font-semibold">
               Best Windows Remaining
             </p>
             <CosmicInfoTooltip label="Best trading window info">
@@ -283,8 +367,8 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours: _planetar
                 >
                   <CosmicStatusOrb status={orbStatus} size="sm" />
                   <div className="min-w-0">
-                    <span className="text-white text-[11px] font-bold font-mono block">{timeStr}</span>
-                    <span className="text-gray-500 text-[9px] truncate block">{w.reason}</span>
+                    <span className="text-white text-[12px] font-bold font-mono block">{timeStr}</span>
+                    <span className="text-gray-500 text-[10px] truncate block">{w.reason}</span>
                   </div>
                 </div>
               );
