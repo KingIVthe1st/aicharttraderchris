@@ -37,7 +37,23 @@ export default function NumerologyHarmonics({ numerology }: Props) {
         </p>
         {isAlignmentDay && (
           <div className="flex items-center gap-1.5">
-            <CosmicStatusOrb status="special" pulse label="ALIGNMENT DAY" />
+            <span
+              className="inline-flex items-center gap-1.5 animate-pulse"
+              style={{
+                filter: 'drop-shadow(0 0 6px rgba(246,196,83,0.5))',
+              }}
+            >
+              <CosmicStatusOrb status="special" pulse label="" />
+              <span
+                className="text-[11px] font-bold uppercase tracking-widest"
+                style={{
+                  color: '#F6C453',
+                  textShadow: '0 0 8px rgba(246,196,83,0.6), 0 0 16px rgba(246,196,83,0.3)',
+                }}
+              >
+                ALIGNMENT DAY
+              </span>
+            </span>
             <CosmicInfoTooltip label="About alignment day">
               <p>{COSMIC_TOOLTIPS.alignmentDay.text}</p>
             </CosmicInfoTooltip>
@@ -55,6 +71,7 @@ export default function NumerologyHarmonics({ numerology }: Props) {
             label={String(personalDay)}
             sublabel="PERSONAL DAY"
           />
+          <span className="text-[11px] text-white/35 mt-1">Your energy today</span>
           <CosmicInfoTooltip label="About personal day">
             <p>{COSMIC_TOOLTIPS.personalDay.text}</p>
           </CosmicInfoTooltip>
@@ -68,26 +85,33 @@ export default function NumerologyHarmonics({ numerology }: Props) {
             label={String(universalDay)}
             sublabel="UNIVERSAL DAY"
           />
+          <span className="text-[11px] text-white/35 mt-1">Global vibration</span>
           <CosmicInfoTooltip label="About universal day">
             <p>{COSMIC_TOOLTIPS.universalDay.text}</p>
           </CosmicInfoTooltip>
         </div>
 
-        <CosmicArcGauge
-          value={personalYear / 9}
-          size={100}
-          color="#A855F7"
-          label={String(personalYear)}
-          sublabel="PERSONAL YEAR"
-        />
+        <div className="flex flex-col items-center">
+          <CosmicArcGauge
+            value={personalYear / 9}
+            size={100}
+            color="#A855F7"
+            label={String(personalYear)}
+            sublabel="PERSONAL YEAR"
+          />
+          <span className="text-[11px] text-white/35 mt-1">Annual cycle</span>
+        </div>
 
-        <CosmicArcGauge
-          value={personalMonth / 9}
-          size={100}
-          color="#22C55E"
-          label={String(personalMonth)}
-          sublabel="PERSONAL MONTH"
-        />
+        <div className="flex flex-col items-center">
+          <CosmicArcGauge
+            value={personalMonth / 9}
+            size={100}
+            color="#22C55E"
+            label={String(personalMonth)}
+            sublabel="PERSONAL MONTH"
+          />
+          <span className="text-[11px] text-white/35 mt-1">Monthly rhythm</span>
+        </div>
       </div>
 
       {/* Day meaning */}

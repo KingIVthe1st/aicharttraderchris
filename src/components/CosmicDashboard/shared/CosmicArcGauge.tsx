@@ -112,7 +112,7 @@ export default function CosmicArcGauge({
             </span>
           )}
           {sublabel && (
-            <span className="text-gray-500 uppercase tracking-widest" style={{ fontSize: size * 0.08 }}>
+            <span className="text-gray-400 uppercase tracking-widest font-medium" style={{ fontSize: Math.max(size * 0.1, 11) }}>
               {sublabel}
             </span>
           )}
