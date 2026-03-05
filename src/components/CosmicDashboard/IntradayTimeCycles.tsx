@@ -1,6 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { HoraGrid, PlanetaryHourMap } from '@/types/cosmic';
+import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
+import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
+import { useInteractiveSelection } from './hooks/useInteractiveSelection';
 
 interface Props {
   horaGrid: HoraGrid;
@@ -38,6 +41,8 @@ function timeToMinutes(isoString: string): number {
 }
 
 export default function IntradayTimeCycles({ horaGrid, planetaryHours, bestTradingWindows }: Props) {
+  const { active, getHandlers } = useInteractiveSelection<number>();
+
   const [nowMinutes, setNowMinutes] = useState(() => {
     const n = new Date();
     return n.getHours() * 60 + n.getMinutes();
@@ -88,13 +93,18 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours, bestTradi
             <span className="text-lg">⚡</span>
             <h3 className="text-white font-bold text-sm uppercase tracking-widest">Intraday Power Windows</h3>
           </div>
-          <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${
-            isMarketOpen
-              ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
-              : 'bg-gray-500/20 border-gray-500/40 text-gray-400'
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isMarketOpen ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`} />
-            {isMarketOpen ? 'MARKET OPEN' : 'AFTER HOURS'}
+          <div className="flex items-center gap-1.5">
+            <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border ${
+              isMarketOpen
+                ? 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                : 'bg-gray-500/20 border-gray-500/40 text-gray-400'
+            }`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${isMarketOpen ? 'bg-emerald-400 animate-pulse' : 'bg-gray-500'}`} />
+              {isMarketOpen ? 'MARKET OPEN' : 'AFTER HOURS'}
+            </div>
+            <CosmicInfoTooltip label="Market status info">
+              {COSMIC_TOOLTIPS.marketStatus.text}
+            </CosmicInfoTooltip>
           </div>
         </div>
 
@@ -117,9 +127,9 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours, bestTradi
             return (
               <div
                 key={i}
-                className="absolute top-0 bottom-0 group cursor-default"
+                className={`absolute top-0 bottom-0 group cursor-pointer ${active === i ? 'ring-1 ring-white/40 z-[5]' : ''}`}
                 style={{ left: `${left}%`, width: `${Math.max(width, 0.5)}%`, background: color, borderRight: `1px solid ${borderColor}30` }}
-                title={h.tradingGuidance}
+                {...getHandlers(i)}
               >
                 {width > 5 && (
                   <div className="absolute inset-0 flex items-center justify-center">
@@ -177,18 +187,33 @@ export default function IntradayTimeCycles({ horaGrid, planetaryHours, bestTradi
           })}
         </div>
 
-        <div className="flex flex-wrap gap-2 mt-3">
+        {active !== null && marketHours[active] && (
+          <div className="mt-3 p-3 rounded-xl bg-gray-800/50 border border-gray-700/30 text-xs">
+            <p className="text-white font-bold">{marketHours[active].startTime} – {marketHours[active].endTime}</p>
+            <p className="text-gray-400 mt-1">{marketHours[active].tradingGuidance || marketHours[active].nodeType}</p>
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center gap-2 mt-3">
           {Object.entries(NODE_COLORS).filter(([k]) => k !== 'U_NODE').map(([type, color]) => (
             <div key={type} className="flex items-center gap-1">
               <div className="w-2 h-2 rounded-sm" style={{ background: color }} />
               <span className="text-[9px] text-gray-400">{type.replace('_', ' ')}</span>
             </div>
           ))}
+          <CosmicInfoTooltip label="Node type color legend">
+            {COSMIC_TOOLTIPS.nodeUltraAligned.text}
+          </CosmicInfoTooltip>
         </div>
 
         {remainingWindows.length > 0 && (
           <div className="mt-3 border-t border-white/10 pt-3">
-            <p className="text-[10px] text-gray-400 uppercase tracking-wider mb-2">Best Windows Remaining</p>
+            <div className="flex items-center gap-1.5 mb-2">
+              <p className="text-[10px] text-gray-400 uppercase tracking-wider">Best Windows Remaining</p>
+              <CosmicInfoTooltip label="Best trading window info">
+                {COSMIC_TOOLTIPS.bestWindow.text}
+              </CosmicInfoTooltip>
+            </div>
             <div className="flex gap-2 flex-wrap">
               {remainingWindows.map((w, i) => {
                 const t = new Date(w.time);
