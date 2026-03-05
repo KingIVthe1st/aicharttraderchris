@@ -49,6 +49,12 @@ export default {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'spin-slow': 'spin 60s linear infinite',
+        'spin-reverse': 'spinReverse 80s linear infinite',
+        'twinkle': 'twinkle 3s ease-in-out infinite',
+        'pulse-gold': 'pulseGold 2s ease-in-out infinite',
+        'shimmer': 'shimmer 2s linear infinite',
+        'playhead': 'playhead 1s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -98,11 +104,35 @@ export default {
           from: { height: 'var(--radix-accordion-content-height)' },
           to: { height: '0' },
         },
+        spinReverse: {
+          from: { transform: 'rotate(360deg)' },
+          to: { transform: 'rotate(0deg)' },
+        },
+        twinkle: {
+          '0%, 100%': { opacity: '1', transform: 'scale(1)' },
+          '50%': { opacity: '0.3', transform: 'scale(0.7)' },
+        },
+        pulseGold: {
+          '0%, 100%': { boxShadow: '0 0 8px rgba(246,196,83,0.3)' },
+          '50%': { boxShadow: '0 0 20px rgba(246,196,83,0.8), 0 0 40px rgba(246,196,83,0.3)' },
+        },
+        shimmer: {
+          from: { backgroundPosition: '-200% 0' },
+          to: { backgroundPosition: '200% 0' },
+        },
+        playhead: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.4' },
+        },
       },
       boxShadow: {
         'glow-sm': '0 0 10px rgba(30, 174, 219, 0.3)',
         'glow-md': '0 0 20px rgba(30, 174, 219, 0.4)',
         'glow-lg': '0 0 30px rgba(30, 174, 219, 0.5)',
+        'glow-nebula': '0 0 20px rgba(109, 91, 255, 0.4), 0 0 40px rgba(109, 91, 255, 0.15)',
+        'glow-aurora': '0 0 20px rgba(46, 197, 255, 0.4), 0 0 40px rgba(46, 197, 255, 0.15)',
+        'glow-solar': '0 0 20px rgba(246, 196, 83, 0.4), 0 0 40px rgba(246, 196, 83, 0.15)',
+        'glow-emerald': '0 0 20px rgba(52, 211, 153, 0.4)',
         'card': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
         'card-hover': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
       },
