@@ -1,98 +1,142 @@
-import { motion } from 'framer-motion';
 import type { EnvironmentalEnergy } from '@/types/cosmic';
+import CosmicGlassCard from './shared/CosmicGlassCard';
+import CosmicArcGauge from './shared/CosmicArcGauge';
+import CosmicStatusOrb from './shared/CosmicStatusOrb';
 import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
 import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
-interface Props { env: EnvironmentalEnergy }
-
-function KIndexMeter({ value }: { value: number }) {
-  const color = value <= 2 ? '#10B981' : value <= 4 ? '#F59E0B' : '#EF4444';
-  const max = 9;
-  const arcLength = 125.6; // approximate half-circle arc
-  const filled = (value / max) * arcLength;
-
-  return (
-    <div className="flex flex-col items-center">
-      <svg width="90" height="55" viewBox="0 0 90 55">
-        <path d="M 5 50 A 40 40 0 0 1 85 50" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="7" strokeLinecap="round" />
-        <motion.path
-          d="M 5 50 A 40 40 0 0 1 85 50"
-          fill="none" stroke={color} strokeWidth="7"
-          strokeLinecap="round"
-          strokeDasharray={`${filled} ${arcLength}`}
-          initial={{ strokeDasharray: `0 ${arcLength}` }}
-          animate={{ strokeDasharray: `${filled} ${arcLength}` }}
-          transition={{ duration: 1, ease: 'easeOut' }}
-        />
-        <text x={45} y={42} textAnchor="middle" fontSize="18" fontWeight="900" fill={color}>{value}</text>
-        <text x={45} y={52} textAnchor="middle" fontSize="7" fill="rgba(255,255,255,0.3)">K-INDEX</text>
-      </svg>
-    </div>
-  );
+interface Props {
+  env: EnvironmentalEnergy;
 }
 
-export default function EnvironmentalGauges({ env }: Props) {
-  const sc = {
-    green: { text: 'text-emerald-400', bg: 'bg-emerald-500/20', border: 'border-emerald-500/30', dot: 'bg-emerald-400' },
-    amber: { text: 'text-amber-400', bg: 'bg-amber-500/20', border: 'border-amber-500/30', dot: 'bg-amber-400' },
-    red:   { text: 'text-red-400', bg: 'bg-red-500/20', border: 'border-red-500/30', dot: 'bg-red-400' },
-  }[env.overallStatus] ?? { text: 'text-emerald-400', bg: 'bg-emerald-500/20', border: 'border-emerald-500/30', dot: 'bg-emerald-400' };
+/* ── colour helpers ── */
+function kColor(k: number): string {
+  if (k <= 3) return '#10B981';
+  if (k <= 5) return '#F59E0B';
+  return '#EF4444';
+}
 
-  const schumannColor = env.schumannResonance === 'normal' ? '#10B981' : env.schumannResonance === 'elevated' ? '#F59E0B' : '#EF4444';
+function schumannColor(s: EnvironmentalEnergy['schumannResonance']): string {
+  if (s === 'normal') return '#10B981';
+  if (s === 'elevated') return '#F59E0B';
+  return '#EF4444';
+}
+
+function schumannNorm(s: EnvironmentalEnergy['schumannResonance']): number {
+  if (s === 'normal') return 0.33;
+  if (s === 'elevated') return 0.66;
+  return 1.0;
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+const STATUS_TEXT: Record<EnvironmentalEnergy['overallStatus'], string> = {
+  green: 'Favorable Conditions',
+  amber: 'Moderate Interference',
+  red: 'High Interference',
+};
+
+const STATUS_ORB_MAP: Record<EnvironmentalEnergy['overallStatus'], 'positive' | 'neutral' | 'negative'> = {
+  green: 'positive',
+  amber: 'neutral',
+  red: 'negative',
+};
+
+const ACCENT_MAP: Record<EnvironmentalEnergy['overallStatus'], 'emerald' | 'amber' | 'red'> = {
+  green: 'emerald',
+  amber: 'amber',
+  red: 'red',
+};
+
+export default function EnvironmentalGauges({ env }: Props) {
+  const accentColor = ACCENT_MAP[env.overallStatus];
+  const showVignette = env.overallStatus === 'amber' || env.overallStatus === 'red';
 
   return (
-    <div className="rounded-2xl border border-gray-700/50 bg-gradient-to-b from-gray-900 to-gray-950 p-5">
-      <p className="text-xs text-gray-500 uppercase tracking-widest mb-4 font-medium">Environmental Energy</p>
+    <CosmicGlassCard accentColor={accentColor}>
+      <div className="relative">
+        {/* Title */}
+        <p className="text-[11px] text-white/30 uppercase tracking-[0.2em] font-medium mb-5">
+          Earth Sensor Array
+        </p>
 
-      <div className="flex items-center gap-4 mb-4">
-        <div className="flex flex-col items-center gap-1">
-          <KIndexMeter value={env.kIndex} />
-          <CosmicInfoTooltip label="About K-Index">
-            <p>{COSMIC_TOOLTIPS.kIndex.text}</p>
-          </CosmicInfoTooltip>
-        </div>
-        <div className="flex-1 space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <span className="text-gray-400 text-xs">Schumann</span>
-              <CosmicInfoTooltip label="About Schumann resonance">
-                <p>{COSMIC_TOOLTIPS.schumann.text}</p>
-              </CosmicInfoTooltip>
-            </div>
-            <span className="font-semibold text-xs px-2 py-0.5 rounded-full border"
-              style={{ color: schumannColor, borderColor: schumannColor + '40', background: schumannColor + '15' }}>
-              {env.schumannResonance.toUpperCase()}
+        {/* 3-column gauge grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center justify-items-center">
+          {/* Schumann – left */}
+          <div className="flex flex-col items-center gap-2">
+            <CosmicInfoTooltip label="Schumann Resonance">
+              <p>{COSMIC_TOOLTIPS.schumann.text}</p>
+            </CosmicInfoTooltip>
+            <CosmicArcGauge
+              value={schumannNorm(env.schumannResonance)}
+              size={100}
+              color={schumannColor(env.schumannResonance)}
+              label={capitalize(env.schumannResonance)}
+              sublabel="SCHUMANN"
+            />
+          </div>
+
+          {/* K-Index – center */}
+          <div className="flex flex-col items-center gap-2">
+            <CosmicInfoTooltip label="K-Index">
+              <p>{COSMIC_TOOLTIPS.kIndex.text}</p>
+            </CosmicInfoTooltip>
+            <CosmicArcGauge
+              value={env.kIndex / 9}
+              size={140}
+              color={kColor(env.kIndex)}
+              label={String(env.kIndex)}
+              sublabel="K-INDEX"
+            />
+          </div>
+
+          {/* Solar Flare – right */}
+          <div className="flex flex-col items-center gap-2">
+            <CosmicInfoTooltip label="Solar Flare">
+              <p>{COSMIC_TOOLTIPS.solarFlare.text}</p>
+            </CosmicInfoTooltip>
+            <CosmicStatusOrb
+              size="lg"
+              status={env.solarFlareActive ? 'negative' : 'positive'}
+              pulse={env.solarFlareActive}
+            />
+            <span className="text-[11px] font-bold tracking-wider text-white/50 uppercase mt-1">
+              {env.solarFlareActive ? 'ACTIVE' : 'QUIET'}
             </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <span className="text-gray-400 text-xs">Solar Flare</span>
-              <CosmicInfoTooltip label="About solar flares">
-                <p>{COSMIC_TOOLTIPS.solarFlare.text}</p>
-              </CosmicInfoTooltip>
-            </div>
-            <span className={`font-semibold text-xs ${env.solarFlareActive ? 'text-red-400' : 'text-emerald-400'}`}>
-              {env.solarFlareActive ? `⚡ ${env.solarFlareClass ?? 'Active'}` : '✓ Quiet'}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-gray-400 text-xs">Geomagnetic</span>
-            <span className="text-gray-300 text-xs font-medium capitalize">{env.kIndexLevel}</span>
+            {env.solarFlareActive && env.solarFlareClass && (
+              <span className="text-[10px] font-semibold text-red-400 bg-red-500/10 border border-red-500/20 rounded-full px-2 py-0.5">
+                {env.solarFlareClass}
+              </span>
+            )}
           </div>
         </div>
-      </div>
 
-      <div className={`flex items-center gap-2 rounded-xl px-3 py-2 border ${sc.bg} ${sc.border}`}>
-        <motion.span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${sc.dot}`}
-          animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-        <span className={`text-xs font-bold uppercase ${sc.text}`}>
-          {env.overallStatus === 'green' ? 'Favorable Conditions' : env.overallStatus === 'amber' ? 'Moderate Interference' : 'High Interference'}
-        </span>
-      </div>
+        {/* Overall status bar */}
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-2.5 flex items-center gap-3 mt-6">
+          <CosmicStatusOrb status={STATUS_ORB_MAP[env.overallStatus]} size="md" />
+          <span className="text-xs font-bold uppercase text-white/60 tracking-wide">
+            {STATUS_TEXT[env.overallStatus]}
+          </span>
+          {env.tradingImpact && (
+            <span className="text-[11px] text-white/30 ml-auto leading-relaxed">
+              {env.tradingImpact}
+            </span>
+          )}
+        </div>
 
-      {env.tradingImpact && (
-        <p className="text-gray-500 text-[11px] mt-2 leading-relaxed">{env.tradingImpact}</p>
-      )}
-    </div>
+        {/* Warning vignette when amber/red */}
+        {showVignette && (
+          <div
+            className="absolute inset-0 pointer-events-none rounded-2xl"
+            style={{
+              background:
+                'radial-gradient(ellipse at center, transparent 50%, rgba(239,68,68,0.04) 100%)',
+            }}
+          />
+        )}
+      </div>
+    </CosmicGlassCard>
   );
 }
