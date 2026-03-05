@@ -9,7 +9,7 @@ function polarToXY(cx: number, cy: number, r: number, angleDeg: number) {
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 }
 
-export default function ConstellationRing({ factors, total }: Props) {
+export default function ConstellationRing({ factors, total: _total }: Props) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   const cx = 220, cy = 220, ringR = 170, nodeR = 10;
   const n = factors.length;

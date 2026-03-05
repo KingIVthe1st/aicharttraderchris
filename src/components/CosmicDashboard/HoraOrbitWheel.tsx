@@ -110,7 +110,7 @@ export default function HoraOrbitWheel({ hours }: Props) {
           })}
 
           {/* Middle ring fill */}
-          {hours.map((h, i) => {
+          {hours.map((_h, i) => {
             const startAngle = i * wedgeDeg + gap / 2;
             const endAngle = (i + 1) * wedgeDeg - gap / 2;
             const isCurrent = i === currentIdx;
