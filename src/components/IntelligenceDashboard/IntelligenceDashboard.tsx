@@ -54,7 +54,11 @@ export function IntelligenceDashboard() {
     queryFn: institutionalApi.getData,
     staleTime: 60 * 1000, // 1 minute
     refetchInterval: 5 * 60 * 1000, // Refetch every 5 minutes
-    retry: 5, // More retries for reliability
+    retry: (count, err) => {
+      // Don't retry when KV cache is empty - it won't help
+      if ((err as Error)?.message === "DATA_NOT_INITIALIZED") return false;
+      return count < 5;
+    },
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 15000),
     // Network-level retries for transient failures
     networkMode: "always",
@@ -151,60 +155,58 @@ export function IntelligenceDashboard() {
 
   // Show error state with retry option - we ONLY show real data
   if (error || !data) {
+    const isDataInitializing = (error as Error)?.message === "DATA_NOT_INITIALIZED";
     return (
       <div className="glass-card p-8 text-center">
-        <div className="text-amber-400 mb-4">
-          <svg
-            className="w-16 h-16 mx-auto"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1.5}
-              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-            />
-          </svg>
+        <div className={`mb-4 ${isDataInitializing ? "text-blue-400" : "text-amber-400"}`}>
+          {isDataInitializing ? (
+            <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          ) : (
+            <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          )}
         </div>
         <h3 className="text-xl font-semibold text-white mb-2">
-          Loading Market Intelligence
+          {isDataInitializing ? "Market Data Initializing" : "Loading Market Intelligence"}
         </h3>
         <p className="text-gray-400 mb-6 max-w-md mx-auto">
-          {error
+          {isDataInitializing
+            ? "Institutional market data is being populated for the first time. This typically completes within a few minutes. Check back shortly."
+            : error
             ? "Connection to market data temporarily interrupted. Click retry to reconnect."
             : "Connecting to live market feed..."}
         </p>
-        <button
-          onClick={() => refetch()}
-          disabled={isFetching}
-          className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isFetching ? (
-            <span className="flex items-center gap-2">
-              <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                  fill="none"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                />
-              </svg>
-              Connecting...
-            </span>
-          ) : (
-            "Retry Connection"
-          )}
-        </button>
+        {!isDataInitializing && (
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-blue-500 text-white font-semibold rounded-lg hover:shadow-lg hover:shadow-purple-500/25 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFetching ? (
+              <span className="flex items-center gap-2">
+                <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Connecting...
+              </span>
+            ) : (
+              "Retry Connection"
+            )}
+          </button>
+        )}
+        {isDataInitializing && (
+          <button
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white font-semibold rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isFetching ? "Checking..." : "Check Again"}
+          </button>
+        )}
       </div>
     );
   }

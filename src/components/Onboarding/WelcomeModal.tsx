@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from './OnboardingProvider';
 
 // =============================================================================
@@ -8,6 +9,7 @@ import { useOnboarding } from './OnboardingProvider';
 // =============================================================================
 export function WelcomeModal() {
   const { isWelcomeModalOpen, closeWelcomeModal, startTour } = useOnboarding();
+  const navigate = useNavigate();
   const [selectedMode, setSelectedMode] = useState<'trader' | 'mentor' | null>(null);
   const [step, setStep] = useState(0);
 
@@ -15,7 +17,9 @@ export function WelcomeModal() {
 
   const handleStartTour = () => {
     closeWelcomeModal();
-    startTour('welcome-tour');
+    // Navigate to the analysis page first so tour targets exist in the DOM
+    navigate('/analysis');
+    setTimeout(() => startTour('welcome-tour'), 400);
   };
 
   const handleSkipTour = () => {

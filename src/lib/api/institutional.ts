@@ -146,7 +146,17 @@ export async function getInstitutionalData(): Promise<InstitutionalIntelligence>
       // Extract and transform the nested data structure
       const backendData = response.data;
 
-      if (!backendData?.success || !backendData?.data?.intelligence) {
+      if (!backendData?.success) {
+        throw new Error("Invalid response structure from backend");
+      }
+
+      // KV cache is empty - data hasn't been initialized yet (not an error, just not ready)
+      if (!backendData?.data) {
+        lastError = new Error("DATA_NOT_INITIALIZED");
+        break; // Don't retry - retrying won't help, KV is just empty
+      }
+
+      if (!backendData?.data?.intelligence) {
         throw new Error("Invalid response structure from backend");
       }
 
