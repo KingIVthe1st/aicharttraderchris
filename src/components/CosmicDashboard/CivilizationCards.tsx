@@ -1,9 +1,18 @@
 import { motion } from 'framer-motion';
 import type { HoraGridHour } from '@/types/cosmic';
+import CosmicGlassCard from './shared/CosmicGlassCard';
+import CosmicStatusOrb from './shared/CosmicStatusOrb';
+import CosmicDataRow from './shared/CosmicDataRow';
 import CosmicInfoTooltip from './shared/CosmicInfoTooltip';
 import { COSMIC_TOOLTIPS } from './config/cosmicTooltips';
 
 interface Props { currentHour: HoraGridHour }
+
+const STATUS_MAP = {
+  ALIGNED: 'positive',
+  MIXED: 'neutral',
+  CONFLICT: 'negative',
+} as const;
 
 const CIVILIZATIONS = [
   {
@@ -11,11 +20,11 @@ const CIVILIZATIONS = [
     name: 'Vedic',
     subname: 'Jyotish',
     tooltipKey: 'civVedic' as const,
-    image: '/images/ai-generated/cosmic-vedic-bg.png',
-    gradient: 'from-indigo-950/90 to-purple-950/90',
-    border: 'border-indigo-500/30',
+    accentColor: 'nebula' as const,
     accent: '#8B7AFF',
     glyph: '🕉',
+    dataLabel: 'Ruling Planet',
+    getDataValue: (h: HoraGridHour) => h.vedic.planet,
     getSignal: (h: HoraGridHour) => h.vedic.planet,
     getStatus: (h: HoraGridHour): 'ALIGNED' | 'MIXED' | 'CONFLICT' =>
       h.vedic.isAlly ? 'ALIGNED' : h.vedic.isEnemy ? 'CONFLICT' : 'MIXED',
@@ -27,11 +36,11 @@ const CIVILIZATIONS = [
     name: 'Babylonian',
     subname: 'Chaldean',
     tooltipKey: 'civBabylonian' as const,
-    image: '/images/ai-generated/cosmic-babylonian-bg.png',
-    gradient: 'from-amber-950/90 to-orange-950/90',
-    border: 'border-amber-500/30',
+    accentColor: 'solar' as const,
     accent: '#F6C453',
     glyph: '𒀭',
+    dataLabel: 'Ruling Planet',
+    getDataValue: (h: HoraGridHour) => h.babylonian.planet,
     getSignal: (h: HoraGridHour) => h.babylonian.planet,
     getStatus: (h: HoraGridHour): 'ALIGNED' | 'MIXED' | 'CONFLICT' => {
       const e = (h.babylonian.energy ?? '').toLowerCase();
@@ -45,11 +54,11 @@ const CIVILIZATIONS = [
     name: 'Egyptian',
     subname: 'Decan System',
     tooltipKey: 'civEgyptian' as const,
-    image: '/images/ai-generated/cosmic-egyptian-bg.png',
-    gradient: 'from-yellow-950/90 to-teal-950/90',
-    border: 'border-yellow-500/30',
+    accentColor: 'aurora' as const,
     accent: '#5DD8FF',
     glyph: '𓂀',
+    dataLabel: 'Decan Energy',
+    getDataValue: (h: HoraGridHour) => (h.egyptian.decanEnergy ?? '').split(' ')[0] || 'Decan',
     getSignal: (h: HoraGridHour) => (h.egyptian.decanEnergy ?? '').split(' ')[0] || 'Decan',
     getStatus: (h: HoraGridHour): 'ALIGNED' | 'MIXED' | 'CONFLICT' => {
       const e = (h.egyptian.decanEnergy ?? '').toLowerCase();
@@ -63,11 +72,11 @@ const CIVILIZATIONS = [
     name: 'Chinese',
     subname: 'Shi Chen',
     tooltipKey: 'civChinese' as const,
-    image: '/images/ai-generated/cosmic-chinese-bg.png',
-    gradient: 'from-red-950/90 to-emerald-950/90',
-    border: 'border-red-500/30',
+    accentColor: 'emerald' as const,
     accent: '#22C55E',
     glyph: '☯',
+    dataLabel: 'Animal',
+    getDataValue: (h: HoraGridHour) => h.chinese.animal,
     getSignal: (h: HoraGridHour) => h.chinese.animal,
     getStatus: (h: HoraGridHour): 'ALIGNED' | 'MIXED' | 'CONFLICT' => {
       const c = (h.chinese.compatibility ?? '').toLowerCase();
@@ -78,15 +87,6 @@ const CIVILIZATIONS = [
   },
 ];
 
-const STATUS_STYLES = {
-  ALIGNED:  'bg-emerald-500/20 border-emerald-500/40 text-emerald-300',
-  MIXED:    'bg-amber-500/20 border-amber-500/40 text-amber-300',
-  CONFLICT: 'bg-red-500/20 border-red-500/40 text-red-300',
-};
-const STATUS_DOTS = {
-  ALIGNED: 'bg-emerald-400', MIXED: 'bg-amber-400', CONFLICT: 'bg-red-400',
-};
-
 export default function CivilizationCards({ currentHour }: Props) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -94,6 +94,7 @@ export default function CivilizationCards({ currentHour }: Props) {
         const signal = civ.getSignal(currentHour);
         const status = civ.getStatus(currentHour);
         const reading = civ.getReading(currentHour);
+        const dataValue = civ.getDataValue(currentHour);
 
         return (
           <motion.div
@@ -101,39 +102,53 @@ export default function CivilizationCards({ currentHour }: Props) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: i * 0.1 }}
-            className={`relative rounded-2xl overflow-hidden border ${civ.border} group cursor-default`}
-            style={{ minHeight: '200px' }}
           >
-            <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
-              style={{ backgroundImage: `url(${civ.image})` }} />
-            <div className={`absolute inset-0 bg-gradient-to-b ${civ.gradient}`} />
+            <CosmicGlassCard accentColor={civ.accentColor} className="h-full">
+              <div className="flex flex-col h-full">
+                {/* Header: glyph + name + status orb */}
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl leading-none">{civ.glyph}</span>
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <p className="text-white font-bold text-sm">{civ.name}</p>
+                        <CosmicInfoTooltip label={`About ${civ.name}`}>
+                          <p>{COSMIC_TOOLTIPS[civ.tooltipKey].text}</p>
+                        </CosmicInfoTooltip>
+                      </div>
+                      <p className="text-gray-500 text-[10px]">{civ.subname}</p>
+                    </div>
+                  </div>
+                  <CosmicStatusOrb
+                    status={STATUS_MAP[status]}
+                    size="sm"
+                    pulse={status === 'ALIGNED'}
+                    label={status}
+                  />
+                </div>
 
-            <div className="relative z-10 p-4 h-full flex flex-col">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <span className="text-xl">{civ.glyph}</span>
-                  <div className="flex items-center gap-1 mt-1">
-                    <p className="text-white font-bold text-sm">{civ.name}</p>
-                    <CosmicInfoTooltip label={`About ${civ.name}`}>
-                      <p>{COSMIC_TOOLTIPS[civ.tooltipKey].text}</p>
-                    </CosmicInfoTooltip>
-                  </div>
-                  <p className="text-gray-400 text-[11px]">{civ.subname}</p>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className={`flex items-center gap-1.5 px-2 py-1 rounded-full border text-[10px] font-bold uppercase ${STATUS_STYLES[status]}`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DOTS[status]}`} />
-                    {status}
-                  </div>
-                  <CosmicInfoTooltip label="About status badge">
-                    <p>{COSMIC_TOOLTIPS.civStatusBadge.text}</p>
-                  </CosmicInfoTooltip>
-                </div>
+                {/* Data row: ruling planet / animal */}
+                <CosmicDataRow
+                  label={civ.dataLabel}
+                  value={dataValue}
+                  valueColor={civ.accent}
+                  noBorder
+                />
+
+                {/* Signal */}
+                <p
+                  className="text-lg font-semibold mt-2 mb-1"
+                  style={{ color: civ.accent }}
+                >
+                  {signal}
+                </p>
+
+                {/* Reading */}
+                <p className="text-gray-400 text-xs leading-relaxed line-clamp-3 flex-1">
+                  {reading}
+                </p>
               </div>
-
-              <p style={{ color: civ.accent }} className="text-lg font-black mb-2">{signal}</p>
-              <p className="text-gray-300 text-[11px] leading-relaxed line-clamp-3 flex-1">{reading}</p>
-            </div>
+            </CosmicGlassCard>
           </motion.div>
         );
       })}
